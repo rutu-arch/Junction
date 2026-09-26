@@ -9,181 +9,237 @@ export default function PlanPage() {
   const { activeScenario, isRecommendationApproved, selectAttendeeRoute, attendeeSelectedRouteId } = useApp();
   const rec1Approved = isRecommendationApproved("REC1");
   const routes = getAttendeeRoutes(activeScenario, rec1Approved);
-  const [selectedRoute, setSelectedRoute] = useState<AttendeeRoute | null>(null);
-  const [confirmed, setConfirmed] = useState(false);
 
-  const handleSelect = (r: AttendeeRoute) => { setSelectedRoute(r); setConfirmed(false); };
-  const handleChoose = (r: AttendeeRoute) => {
-    selectAttendeeRoute(r.id);
-    setConfirmed(true);
-  };
+  const [travelMode, setTravelMode] = useState<"ALL" | "TRANSIT" | "DRIVE">("ALL");
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [planned, setPlanned] = useState(true);
+  const [selectedRoute, setSelectedRoute] = useState<AttendeeRoute>(routes[0]);
 
-  const crowdColor = (l: string) => l === "HIGH" ? "var(--red)" : l === "MEDIUM" ? "var(--yellow-state)" : "var(--green)";
+  const crowdColor = (l: string) =>
+    l === "HIGH" ? "var(--red)" : l === "MEDIUM" ? "var(--yellow-state)" : "var(--green)";
 
-  if (selectedRoute) {
-    return (
-      <div className={styles.page}>
-        <button className="btn btn-ghost btn-sm" onClick={() => setSelectedRoute(null)} style={{ alignSelf: "flex-start" }}>← Back to options</button>
-
-        <div className={styles.routeDetail}>
-          <div className={styles.routeDetailHeader}>
-            <span className={`pill ${selectedRoute.recommended ? "pill-yellow" : "pill-simulated"}`}>
-              {selectedRoute.type === "FASTEST" ? "FASTEST" : selectedRoute.type === "BALANCED" ? "BALANCED ★" : "LOW CROWD"}
-            </span>
-            <span className={styles.detailTime}>{selectedRoute.totalTime} MIN</span>
-          </div>
-
-          <div className={styles.routeSteps}>
-            {selectedRoute.steps.map((step, i) => (
-              <div key={i} className={styles.routeStep}>
-                <div className={styles.stepLine}>
-                  <div className={styles.stepDot} />
-                  {i < selectedRoute.steps.length - 1 && <div className={styles.stepConnector} />}
-                </div>
-                <div className={styles.stepContent}>
-                  <span className={styles.stepFrom}>{step.from}</span>
-                  <span className={styles.stepMode}>{step.mode} · {step.duration} min</span>
-                  {i === selectedRoute.steps.length - 1 && (
-                    <span className={styles.stepFrom}>Wankhede Stadium</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className={styles.routeStats}>
-            {[
-              { label: "Crowd", value: selectedRoute.crowdLevel, color: crowdColor(selectedRoute.crowdLevel) },
-              { label: "Traffic", value: selectedRoute.congestionLevel },
-              { label: "Transfers", value: String(selectedRoute.transfers) },
-              { label: "Walking", value: `${selectedRoute.walkingTime} min` },
-              { label: "Reliability", value: selectedRoute.reliability },
-            ].map(s => (
-              <div key={s.label} className={styles.statItem}>
-                <span className={styles.statLabel}>{s.label}</span>
-                <span className={styles.statValue} style={{ color: s.color || "var(--ink)" }}>{s.value}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className={styles.whyBox}>
-            <span className={styles.whyTitle}>WHY THIS ROUTE?</span>
-            <p className={styles.whyText}>{selectedRoute.explanation}</p>
-          </div>
-
-          {attendeeSelectedRouteId === selectedRoute.id ? (
-            <div className={styles.confirmedBanner} style={{ display: "flex", flexDirection: "column", gap: 6, padding: "14px 16px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 16 }}>✓</span>
-                <span style={{ fontWeight: 700 }}>Route Confirmed: {selectedRoute.label}</span>
-              </div>
-              {selectedRoute.id === "BALANCED" && rec1Approved && (
-                <div style={{ background: "rgba(255,255,255,0.8)", borderRadius: 6, padding: "8px 12px", marginTop: 4 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--green)", letterSpacing: "0.05em" }}>
-                    Closed-Loop Destination Impact
-                  </span>
-                  <div style={{ fontSize: 12, color: "var(--ink)", marginTop: 2, fontWeight: 600 }}>
-                    Churchgate: 94% → 76% · Dadar: 58% → 69%
-                  </div>
-                  <div style={{ fontSize: 11, color: "var(--ink-muted)", marginTop: 2 }}>
-                    ~1,200 attendees redistributed · Average detour: +8 min
-                  </div>
-                </div>
-              )}
-              <span style={{ fontSize: 11, color: "var(--green)", opacity: 0.9 }}>
-                Propagated to Destination State · Organizer Command Center updated in real time.
-              </span>
-            </div>
-          ) : (
-            <button className="btn btn-yellow" style={{ width: "100%" }} onClick={() => handleChoose(selectedRoute)}>
-              CHOOSE THIS ROUTE
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
+  const activeRoute = routes.find((r) => r.id === attendeeSelectedRouteId) || selectedRoute;
 
   return (
     <div className={styles.page}>
-      <div className={styles.planHeader}>
-        <h1 className={styles.planTitle}>Plan Your Journey</h1>
-        <div className={styles.planInputs}>
-          <div className={styles.inputRow}>
-            <span className={styles.inputLabel}>FROM</span>
-            <div className={styles.inputBox}>Harbour Line Area</div>
-          </div>
-          <div className={styles.inputRow}>
-            <span className={styles.inputLabel}>TO</span>
-            <div className={styles.inputBox}>Wankhede Stadium</div>
+      <h1 className={styles.planTitle}>Plan Your Journey</h1>
+
+      {/* TARGET LAYOUT: CLEAN FORM */}
+      <div
+        style={{
+          background: "var(--white)",
+          padding: 20,
+          borderRadius: "var(--radius-md)",
+          border: "1px solid var(--neutral)",
+          marginBottom: 16,
+        }}
+      >
+        <div style={{ marginBottom: 14 }}>
+          <span className="text-meta" style={{ fontSize: 10, display: "block", marginBottom: 4 }}>
+            FROM
+          </span>
+          <div
+            style={{
+              padding: "10px 14px",
+              background: "var(--paper)",
+              borderRadius: "var(--radius-sm)",
+              fontWeight: 700,
+              fontSize: 14,
+            }}
+          >
+            Harbour Line Area
           </div>
         </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <span className="text-meta" style={{ fontSize: 10, display: "block", marginBottom: 4 }}>
+            TO
+          </span>
+          <div
+            style={{
+              padding: "10px 14px",
+              background: "var(--paper)",
+              borderRadius: "var(--radius-sm)",
+              fontWeight: 700,
+              fontSize: 14,
+            }}
+          >
+            Wankhede Stadium
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <span className="text-meta" style={{ fontSize: 10, display: "block", marginBottom: 4 }}>
+            DATE / TIME
+          </span>
+          <div
+            style={{
+              padding: "10px 14px",
+              background: "var(--paper)",
+              borderRadius: "var(--radius-sm)",
+              fontWeight: 600,
+              fontSize: 13,
+            }}
+          >
+            Today · 18:00
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 18 }}>
+          <span className="text-meta" style={{ fontSize: 10, display: "block", marginBottom: 6 }}>
+            TRAVEL OPTIONS
+          </span>
+          <div style={{ display: "flex", gap: 8 }}>
+            {(["ALL", "TRANSIT", "DRIVE"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setTravelMode(mode)}
+                className={`btn btn-sm ${travelMode === mode ? "btn-yellow" : "btn-outline"}`}
+                style={{ fontSize: 11 }}
+              >
+                {mode === "ALL" ? "All Modes" : mode === "TRANSIT" ? "Public Transit" : "Drive / Cab"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button
+          className="btn btn-yellow"
+          style={{ width: "100%", fontWeight: 800 }}
+          onClick={() => setPlanned(true)}
+        >
+          PLAN JOURNEY
+        </button>
       </div>
 
-      {rec1Approved && (
-        <div className={styles.orgBanner}>
-          <span className={styles.orgBannerIcon}>◆</span>
-          <div>
-            <span className={styles.orgBannerTitle}>Organizer recommendation active</span>
-            <p className={styles.orgBannerMsg}>Dadar Station route has been recommended due to rising Churchgate pressure.</p>
+      {/* COLLAPSIBLE ADVANCED OPTIONS */}
+      <div style={{ marginBottom: 20 }}>
+        <button
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          style={{
+            background: "none",
+            border: "none",
+            fontSize: 11,
+            fontWeight: 700,
+            color: "var(--ink-muted)",
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          {showAdvanced ? "▲ Hide Advanced Options" : "▼ Advanced Options"}
+        </button>
+
+        {showAdvanced && rec1Approved && (
+          <div
+            className={styles.orgBanner}
+            style={{ marginTop: 10, padding: 12, borderRadius: "var(--radius-sm)" }}
+          >
+            <span className={styles.orgBannerIcon}>◆</span>
+            <div>
+              <span className={styles.orgBannerTitle}>Organizer Recommendation Active</span>
+              <p className={styles.orgBannerMsg}>
+                Dadar Station route is recommended due to rising Churchgate pressure.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* JOURNEY RESULT */}
+      {planned && (
+        <div>
+          <span className="text-meta" style={{ marginBottom: 10, display: "block" }}>
+            JOURNEY RESULT
+          </span>
+
+          <div
+            style={{
+              background: "var(--white)",
+              padding: 20,
+              borderRadius: "var(--radius-md)",
+              border: "1.5px solid var(--yellow-state)",
+              marginBottom: 20,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+              <div>
+                <span style={{ fontSize: 10, color: "var(--ink-muted)", display: "block" }}>FROM</span>
+                <span style={{ fontWeight: 700, fontSize: 13 }}>Harbour Line Area</span>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <span style={{ fontSize: 10, color: "var(--ink-muted)", display: "block" }}>TO</span>
+                <span style={{ fontWeight: 700, fontSize: 13 }}>Wankhede Stadium</span>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr",
+                gap: 8,
+                background: "var(--paper)",
+                padding: 12,
+                borderRadius: "var(--radius-sm)",
+                marginBottom: 14,
+              }}
+            >
+              <div>
+                <span style={{ fontSize: 9, color: "var(--ink-muted)", display: "block" }}>EST TIME</span>
+                <span style={{ fontSize: 16, fontWeight: 800 }}>{activeRoute.totalTime} min</span>
+              </div>
+              <div>
+                <span style={{ fontSize: 9, color: "var(--ink-muted)", display: "block" }}>DISTANCE</span>
+                <span style={{ fontSize: 16, fontWeight: 800 }}>8.2 km</span>
+              </div>
+              <div>
+                <span style={{ fontSize: 9, color: "var(--ink-muted)", display: "block" }}>TRANSPORT</span>
+                <span style={{ fontSize: 13, fontWeight: 700 }}>{activeRoute.label}</span>
+              </div>
+            </div>
+
+            <button
+              className="btn btn-yellow"
+              style={{ width: "100%", fontWeight: 800 }}
+              onClick={() => selectAttendeeRoute(activeRoute.id)}
+            >
+              {attendeeSelectedRouteId === activeRoute.id ? "✓ ROUTE ACTIVE" : "VIEW ROUTE"}
+            </button>
+          </div>
+
+          {/* ROUTE STRATEGIES SELECTOR */}
+          <span className="text-meta" style={{ marginBottom: 10, display: "block" }}>
+            AVAILABLE ROUTE OPTIONS
+          </span>
+          <div className={styles.routeOptions}>
+            {routes.map((r) => (
+              <div
+                key={r.id}
+                className={`${styles.routeCard} ${
+                  r.id === activeRoute.id ? styles.routeSelected : ""
+                }`}
+                onClick={() => {
+                  setSelectedRoute(r);
+                  selectAttendeeRoute(r.id);
+                }}
+              >
+                <div className={styles.routeCardHeader}>
+                  <span className="pill pill-yellow">{r.label}</span>
+                  <span className={styles.routeTime}>{r.totalTime} min</span>
+                </div>
+                <div className={styles.routeCardMeta} style={{ marginTop: 8 }}>
+                  <span style={{ color: crowdColor(r.crowdLevel), fontSize: 12, fontWeight: 700 }}>
+                    {r.crowdLevel} Crowd
+                  </span>
+                  <span>·</span>
+                  <span>{r.transfers} transfers</span>
+                  <span>·</span>
+                  <span>{r.walkingTime} min walk</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
-
-      <div className={styles.routeOptions}>
-        {routes.map(r => (
-          <div
-            key={r.id}
-            className={`${styles.routeCard} ${r.recommended ? styles.routeRecommended : ""} ${attendeeSelectedRouteId === r.id ? styles.routeSelected : ""}`}
-            onClick={() => handleSelect(r)}
-          >
-            <div className={styles.routeCardHeader}>
-              <div className={styles.routeCardType}>
-                <span className={`pill ${r.type === "FASTEST" ? "pill-predicted" : r.type === "BALANCED" ? "pill-yellow" : "pill-live"}`}>
-                  {r.label}{r.recommended ? " ★" : ""}
-                </span>
-                {attendeeSelectedRouteId === r.id && <span className="pill pill-live">Your choice</span>}
-              </div>
-              <span className={styles.routeTime}>{r.totalTime} min</span>
-            </div>
-
-            <div className={styles.routeCardMeta}>
-              <span className={styles.routeMeta} style={{ color: crowdColor(r.crowdLevel) }}>
-                {r.crowdLevel === "HIGH" ? "High crowd" : r.crowdLevel === "MEDIUM" ? "Medium crowd" : "Low crowd"}
-              </span>
-              <span className={styles.routeMetaDot}>·</span>
-              <span className={styles.routeMeta}>{r.transfers} transfer{r.transfers !== 1 ? "s" : ""}</span>
-              <span className={styles.routeMetaDot}>·</span>
-              <span className={styles.routeMeta}>{r.walkingTime} min walk</span>
-            </div>
-
-            <div className={styles.routeCardSteps}>
-              {r.steps.map((s, i) => (
-                <span key={i} className={styles.routeStep2}>
-                  {s.from}
-                  {i < r.steps.length - 1 && <span className={styles.stepSep}>→</span>}
-                </span>
-              ))}
-              <span className={styles.routeStep2}>Wankhede</span>
-            </div>
-
-            {r.recommended && (
-              <p className={styles.recExplanation}>{r.explanation}</p>
-            )}
-
-            <button className={`btn ${r.recommended ? "btn-yellow" : "btn-outline"} btn-sm`} style={{ alignSelf: "flex-end" }}>
-              Select →
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div className={styles.simLabel}>
-        <span className="simulated-env-label">
-          <span className="simulated-dot" />
-          Routes are simulated based on current scenario conditions
-        </span>
-      </div>
     </div>
   );
 }

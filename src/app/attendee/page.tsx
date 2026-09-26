@@ -87,45 +87,6 @@ function ExistingAttendeeDashboard() {
         </Link>
       </div>
 
-      {/* QUICK ACTIONS */}
-      <div>
-        <span className="text-meta" style={{ marginBottom: 12, display: "block" }}>Quick Actions</span>
-        <div className={styles.quickGrid}>
-          {[
-            { href: "/attendee/plan", label: "Plan Journey", icon: <Compass size={18} /> },
-            { href: "/attendee/stay", label: "Find Stay", icon: <Hotel size={18} /> },
-            { href: "/attendee/food", label: "Food & Services", icon: <UtensilsCrossed size={18} /> },
-            { href: "/attendee/event", label: "Event Info", icon: <Ticket size={18} /> },
-          ].map(q => (
-            <Link key={q.href} href={q.href} className={styles.quickCard}>
-              <span className={styles.quickIcon}>{q.icon}</span>
-              <span className={styles.quickLabel}>{q.label}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* ALL ALERTS */}
-      <div>
-        <span className="text-meta" style={{ marginBottom: 12, display: "block" }}>Alerts</span>
-        <div className={styles.alertsList}>
-          {alerts.map(a => (
-            <div key={a.id} className={`${styles.alertItem} ${styles[`alert${a.severity}`]}`}>
-              <div className={styles.alertItemHeader}>
-                <span className={`pill ${a.severity === "CRITICAL" ? "pill-critical" : a.severity === "HIGH" ? "pill-high" : "pill-watch"}`}>{a.category}</span>
-                <span className={styles.alertTime}>{a.timestamp}</span>
-              </div>
-              <span className={styles.alertTitle}>{a.title}</span>
-              {a.actionLabel && (
-                <Link href={a.actionRoute || "/attendee/plan"} className="btn btn-outline btn-sm" style={{ alignSelf: "flex-start", marginTop: 4 }}>
-                  {a.actionLabel}
-                </Link>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className={styles.simLabel}>
         <span className="simulated-env-label tooltip-simulated">
           <span className="simulated-dot" />

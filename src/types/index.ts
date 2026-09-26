@@ -95,6 +95,10 @@ export interface Restaurant {
   distanceFromVenue: number; pressure: number;
   pressureLevel: PressureLevel; source: ConfidenceSource;
   hasIncentive: boolean; incentiveLabel?: string; recommended?: boolean;
+  imageUrl?: string;
+  image?: string;
+  rating?: number;
+  address?: string;
 }
 
 export interface RoadEdge {
