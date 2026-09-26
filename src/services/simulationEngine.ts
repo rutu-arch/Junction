@@ -185,7 +185,15 @@ export function nextSimulationState(
   let fracCsmt = 0.08;
   let fracDadar = 0.04;
   let outflowMultiplier = 1.0;
+  let walkingSpeedMps = 1.2;
   const clearanceAdditions: Record<string, number> = {};
+
+  if (scenario === "HEAVY_RAIN") {
+    fracTaxi = 0.34; // surge taxi demand in heavy rain
+    fracChurchgate = 0.44;
+    fracMarine = 0.10;
+    walkingSpeedMps = 0.85; // pedestrian slowdown due to slippery surfaces and rain gear
+  }
 
   if (Array.isArray(interventionsOrRedistribution)) {
     const modifiers = interventionEffectsEngine.calculateModifiers(
@@ -212,10 +220,10 @@ export function nextSimulationState(
 
   const newCohorts: HumanCohort[] = [];
   const destinations: { id: string; fraction: number; speedMps: number }[] = [
-    { id: "CHURCHGATE", fraction: fracChurchgate, speedMps: 1.2 }, // 1.2 m/s pedestrian concourse
-    { id: "TAXI_ZONE", fraction: fracTaxi, speedMps: 1.1 },
-    { id: "MARINE_LINES", fraction: fracMarine, speedMps: 1.2 },
-    { id: "CSMT", fraction: fracCsmt, speedMps: 1.3 },
+    { id: "CHURCHGATE", fraction: fracChurchgate, speedMps: walkingSpeedMps }, // pedestrian concourse
+    { id: "TAXI_ZONE", fraction: fracTaxi, speedMps: Math.min(walkingSpeedMps, 1.0) },
+    { id: "MARINE_LINES", fraction: fracMarine, speedMps: walkingSpeedMps },
+    { id: "CSMT", fraction: fracCsmt, speedMps: walkingSpeedMps },
     { id: "DADAR", fraction: fracDadar, speedMps: 6.0 }, // 6 m/s (~22 km/h) curated express transit corridor
   ];
 

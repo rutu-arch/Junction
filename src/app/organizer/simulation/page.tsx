@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useApp } from "@/state/AppContext";
 import { getPressureColor } from "@/components/ui/PressureIndicator";
 import { MVP_NETWORK_EDGES } from "@/data/mockNetworkTopology";
-import { Clock, Play, Pause, RotateCcw, Check } from "lucide-react";
+import { Clock, Play, Pause, RotateCcw, Check, CloudRain, Droplets, Wind, Thermometer, ArrowRight } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import styles from "./simulation.module.css";
 
@@ -42,11 +42,32 @@ function SimulationContent() {
     simParams,
     updateSimParams,
     redistributionApplied,
+    weatherState,
+    weatherTwinParams,
+    setWeatherTwinParams,
+    weatherImpact,
+    weatherScenarioActive,
+    runWeatherTwin,
+    resetWeatherTwin,
+    weatherAdjustedZones,
+    zones,
   } = useApp();
 
   const searchParams = useSearchParams();
   const recId = searchParams.get("rec");
+  const scenarioQuery = searchParams.get("scenario");
   const linkedRec = recommendations.find(r => r.id === recId);
+
+  const [simMode, setSimMode] = React.useState<"STANDARD" | "WEATHER_TWIN">(
+    scenarioQuery === "weather" || weatherScenarioActive ? "WEATHER_TWIN" : "STANDARD"
+  );
+
+  const setModeAndSync = (m: "STANDARD" | "WEATHER_TWIN") => {
+    setSimMode(m);
+    if (m === "WEATHER_TWIN" && !weatherScenarioActive) {
+      runWeatherTwin();
+    }
+  };
 
   const isRunning = simulationState.status === "PLAYING";
   const isPaused = simulationState.status === "PAUSED";
@@ -235,7 +256,171 @@ function SimulationContent() {
       <div className={styles.grid}>
         {/* LEFT COLUMN: SCENARIO CONTROLS */}
         <div className={styles.controls}>
-          <h3 className={styles.controlsTitle}>Simulation Parameters</h3>
+          {/* Mode Switcher: Standard Parameters vs Weather Digital Twin */}
+          <div className={styles.weatherModeSwitcher}>
+            <button
+              type="button"
+              className={`${styles.weatherModeBtn} ${simMode === "STANDARD" ? styles.weatherModeBtnActive : ""}`}
+              onClick={() => setModeAndSync("STANDARD")}
+            >
+              Standard Params
+            </button>
+            <button
+              type="button"
+              className={`${styles.weatherModeBtn} ${simMode === "WEATHER_TWIN" ? styles.weatherModeBtnActive : ""}`}
+              onClick={() => setModeAndSync("WEATHER_TWIN")}
+            >
+              Weather Twin
+            </button>
+          </div>
+
+          {simMode === "WEATHER_TWIN" ? (
+            <>
+              <h3 className={styles.controlsTitle}>Weather Digital Twin</h3>
+
+              {/* Baseline Live Meteorological Context */}
+              <div className={styles.weatherBaselineCard}>
+                <div className={styles.weatherBaselineHeader}>
+                  <span className={styles.weatherBaselineTitle}>Live Weather Baseline</span>
+                  <span
+                    className={`pill ${weatherState?.source === "LIVE" ? "pill-live" : "pill-watch"}`}
+                    style={{ fontSize: 9 }}
+                  >
+                    {weatherState?.source === "LIVE" ? "LIVE METEOROLOGY" : "DEGRADED CACHE"}
+                  </span>
+                </div>
+                <div className={styles.weatherMetricsRow}>
+                  <div className={styles.weatherMetricItem}>
+                    <span className={styles.weatherMetricVal}>{weatherState?.temperature ?? 29}°C</span>
+                    <span className={styles.weatherMetricLbl}>Temp</span>
+                  </div>
+                  <div className={styles.weatherMetricItem}>
+                    <span className={styles.weatherMetricVal}>{weatherState?.rainfall ?? 0} mm/h</span>
+                    <span className={styles.weatherMetricLbl}>Rain</span>
+                  </div>
+                  <div className={styles.weatherMetricItem}>
+                    <span className={styles.weatherMetricVal}>{weatherState?.humidity ?? 74}%</span>
+                    <span className={styles.weatherMetricLbl}>Humidity</span>
+                  </div>
+                  <div className={styles.weatherMetricItem}>
+                    <span className={styles.weatherMetricVal}>{weatherState?.windSpeed ?? 14} km/h</span>
+                    <span className={styles.weatherMetricLbl}>Wind</span>
+                  </div>
+                </div>
+                <span style={{ fontSize: 10, color: "var(--ink-muted)", marginTop: 2 }}>
+                  Condition: <strong>{weatherState?.condition ?? "Partly Cloudy"}</strong> · Wankhede Concourse
+                </span>
+              </div>
+
+              {/* Weather Twin Adjustments */}
+              <div className={styles.controlGroup}>
+                <label className={styles.controlLabel}>
+                  Rainfall Intensity: {weatherTwinParams.rainfallIntensity} mm/h
+                </label>
+                <input
+                  type="range"
+                  min={0}
+                  max={60}
+                  step={2}
+                  value={weatherTwinParams.rainfallIntensity}
+                  onChange={e => setWeatherTwinParams({ rainfallIntensity: Number(e.target.value) })}
+                  className={styles.slider}
+                />
+                <div className={styles.sliderRange}><span>0 mm (Dry)</span><span>60 mm (Cloudburst)</span></div>
+                <div className={styles.segmented} style={{ marginTop: 6 }}>
+                  {[
+                    { label: "Dry", val: 0 },
+                    { label: "Drizzle (8mm)", val: 8 },
+                    { label: "Heavy (25mm)", val: 25 },
+                    { label: "Torrential (50mm)", val: 50 },
+                  ].map(preset => (
+                    <button
+                      key={preset.label}
+                      className={`${styles.segBtn} ${weatherTwinParams.rainfallIntensity === preset.val ? styles.segActive : ""}`}
+                      onClick={() => setWeatherTwinParams({ rainfallIntensity: preset.val })}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.controlGroup}>
+                <label className={styles.controlLabel}>
+                  Rainfall Duration: {weatherTwinParams.rainfallDuration} minutes
+                </label>
+                <div className={styles.segmented}>
+                  {([15, 30, 45, 60, 90, 120] as const).map(d => (
+                    <button
+                      key={d}
+                      className={`${styles.segBtn} ${weatherTwinParams.rainfallDuration === d ? styles.segActive : ""}`}
+                      onClick={() => setWeatherTwinParams({ rainfallDuration: d })}
+                    >
+                      {d}m
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.controlGroup}>
+                <label className={styles.controlLabel}>
+                  Temperature: {weatherTwinParams.temperature}°C
+                </label>
+                <input
+                  type="range"
+                  min={22}
+                  max={38}
+                  step={1}
+                  value={weatherTwinParams.temperature}
+                  onChange={e => setWeatherTwinParams({ temperature: Number(e.target.value) })}
+                  className={styles.slider}
+                />
+                <div className={styles.sliderRange}><span>22°C</span><span>38°C</span></div>
+              </div>
+
+              <div className={styles.controlGroup}>
+                <label className={styles.controlLabel}>Affected Operational Area</label>
+                <div className={styles.segmented}>
+                  {[
+                    { label: "Wankhede Corridor", val: "WANKHEDE_CORRIDOR" as const },
+                    { label: "South Mumbai All", val: "SOUTH_MUMBAI_ALL" as const },
+                  ].map(area => (
+                    <button
+                      key={area.val}
+                      className={`${styles.segBtn} ${weatherTwinParams.affectedArea === area.val ? styles.segActive : ""}`}
+                      onClick={() => setWeatherTwinParams({ affectedArea: area.val })}
+                    >
+                      {area.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.weatherActionsRow}>
+                <button
+                  type="button"
+                  className={styles.btnWeatherRun}
+                  onClick={() => runWeatherTwin()}
+                >
+                  RUN WEATHER TWIN
+                </button>
+                <button
+                  type="button"
+                  className={styles.btnWeatherReset}
+                  onClick={() => resetWeatherTwin()}
+                >
+                  RESET
+                </button>
+              </div>
+
+              <div className={styles.paramNote}>
+                <strong>Digital Twin Semantics:</strong> Weather What-If generates a separate hypothetical
+                layer. Baseline operational state is strictly preserved and restored upon Reset.
+              </div>
+            </>
+          ) : (
+            <>
+              <h3 className={styles.controlsTitle}>Simulation Parameters</h3>
 
           <div className={styles.controlGroup}>
             <label className={styles.controlLabel}>
@@ -332,10 +517,125 @@ function SimulationContent() {
             <strong>Parameter Change Semantics:</strong> Base parameter changes (attendance, weather, disruption)
             cleanly reinitialize the simulation state. Runtime interventions affect downstream flows.
           </div>
+            </>
+          )}
         </div>
 
-        {/* RIGHT COLUMN: LIVE SIMULATION TELEMETRY */}
+        {/* RIGHT COLUMN: LIVE SIMULATION TELEMETRY & COMPARISON MATRIX */}
         <div className={styles.results}>
+          {/* WEATHER DIGITAL TWIN COMPARISON MATRIX (When Weather Scenario Active) */}
+          {weatherScenarioActive && weatherImpact && (
+            <div className={styles.weatherMatrixCard}>
+              <div className={styles.weatherMatrixHeader}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span className="pill pill-yellow" style={{ fontSize: 10 }}>WHAT-IF SCENARIO ACTIVE</span>
+                    <span
+                      className={`pill ${weatherImpact.severity === "SEVERE" ? "pill-critical" : "pill-high"}`}
+                      style={{ fontSize: 10 }}
+                    >
+                      {weatherImpact.severity} SEVERITY
+                    </span>
+                  </div>
+                  <h3 className={styles.weatherMatrixTitle} style={{ marginTop: 6 }}>
+                    Baseline vs. Weather-Adjusted Digital Twin
+                  </h3>
+                  <p className={styles.weatherMatrixSummary}>{weatherImpact.summary}</p>
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <Link href="/organizer" className="btn btn-outline btn-sm">
+                    View on Map →
+                  </Link>
+                  <Link href="/organizer/recommendations" className="btn btn-yellow btn-sm">
+                    Review Actions →
+                  </Link>
+                </div>
+              </div>
+
+              {/* Propagation Flow */}
+              <div className={styles.propagationBar}>
+                <span style={{ color: "var(--ink-muted)", fontSize: 10 }}>IMPACT PROPAGATION:</span>
+                {weatherImpact.propagationPath.map((step, idx) => (
+                  <React.Fragment key={step}>
+                    <span>{step}</span>
+                    {idx < weatherImpact.propagationPath.length - 1 && (
+                      <span className={styles.propagationArrow}>→</span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+
+              {/* Zone Comparison Table */}
+              <div style={{ overflowX: "auto" }}>
+                <table className={styles.comparisonTable}>
+                  <thead>
+                    <tr>
+                      <th>Operational Zone / Corridor</th>
+                      <th>Baseline Pressure</th>
+                      <th>Weather-Adjusted</th>
+                      <th>Delta</th>
+                      <th>Behavioral &amp; Physical Mechanism</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Explicitly surface Gate 1 and Gate 2 distinctly */}
+                    {[
+                      "ZONE_WANKHEDE_GATE_1",
+                      "ZONE_WANKHEDE_GATE_2",
+                      "ZONE_CHURCHGATE",
+                      "ZONE_TAXI_STAGING",
+                      "ZONE_MARINE_LINES",
+                      "ZONE_DADAR",
+                    ].map(zoneId => {
+                      const deltaItem = weatherImpact.affectedZoneDeltas[zoneId];
+                      const zoneDef = zones.find(z => z.id === zoneId);
+                      if (!deltaItem && !zoneDef) return null;
+
+                      const basePressure = deltaItem?.baselinePressure ?? zoneDef?.pressure ?? 50;
+                      const adjPressure = deltaItem?.weatherAdjustedPressure ?? basePressure;
+                      const deltaVal = deltaItem?.delta ?? 0;
+                      const reason = deltaItem?.impactReason ?? "Egress flow adjusted for weather.";
+
+                      return (
+                        <tr key={zoneId}>
+                          <td>
+                            <strong>{deltaItem?.zoneName ?? zoneDef?.name ?? zoneId}</strong>
+                            <div style={{ fontSize: 10, color: "var(--ink-muted)", fontFamily: "monospace" }}>
+                              {zoneId}
+                            </div>
+                          </td>
+                          <td>
+                            <span style={{ fontWeight: 700 }}>{basePressure}%</span>
+                          </td>
+                          <td>
+                            <span
+                              style={{
+                                fontWeight: 800,
+                                color: getPressureColor(adjPressure),
+                              }}
+                            >
+                              {adjPressure}%
+                            </span>
+                          </td>
+                          <td>
+                            {deltaVal > 0 ? (
+                              <span className={styles.deltaBadgePlus}>+{deltaVal}%</span>
+                            ) : (
+                              <span className={styles.deltaBadgeNeutral}>0%</span>
+                            )}
+                          </td>
+                          <td style={{ fontSize: 11, color: "var(--ink-light)", maxWidth: 300 }}>
+                            {reason}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           {/* 1. NODE ACCUMULATION */}
           <div>
             <div className={styles.sectionHeader}>

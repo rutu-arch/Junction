@@ -31,6 +31,10 @@ export default function PredictionsPage() {
     resources,
     zones,
     simulationState,
+    weatherState,
+    weatherImpact,
+    weatherScenarioActive,
+    weatherTwinParams,
   } = useApp();
 
   const [showAuditDetails, setShowAuditDetails] = useState<boolean>(false);
@@ -194,10 +198,36 @@ export default function PredictionsPage() {
             {redistributionApplied && (
               <span className="pill pill-live">REDISTRIBUTION ACTIVE</span>
             )}
+            {weatherScenarioActive && (
+              <span className="pill pill-yellow">WEATHER TWIN: +{weatherTwinParams.rainfallIntensity}MM RAIN</span>
+            )}
             <ConfidenceBadge source="SIMULATED" />
           </div>
           <h1 className={styles.headlineTitle}>{headlineData.title}</h1>
           <p className={styles.headlineSubtitle}>{headlineData.subtitle}</p>
+
+          {/* Compact Weather-Adjusted Forecast Context */}
+          {weatherScenarioActive && weatherImpact && (
+            <div style={{
+              marginTop: 10,
+              padding: "6px 12px",
+              background: "rgba(255,255,255,0.85)",
+              border: "1px solid var(--neutral)",
+              borderLeft: "3px solid var(--yellow)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: 11,
+              fontFamily: "var(--font-body)",
+            }}>
+              <span>
+                <strong>WEATHER-ADJUSTED FORECAST:</strong> Downpour ({weatherTwinParams.rainfallIntensity} mm/h) slows concourse egress by ~{Math.round((1 - weatherImpact.walkingSpeedMultiplier) * 100)}% and adds ~15m to peak Churchgate dispersal window.
+              </span>
+              <Link href="/organizer/simulation?scenario=weather" style={{ fontWeight: 700, color: "var(--ink)", marginLeft: 12, textDecoration: "none" }}>
+                Simulator →
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className={styles.headlineMetricBox}>

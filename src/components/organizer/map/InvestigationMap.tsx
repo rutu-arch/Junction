@@ -24,6 +24,7 @@ import {
   SimulationState,
   ZoneDefinition,
 } from "@/types";
+import { WeatherImpactResult, WeatherState } from "@/types/weather";
 import { OPERATIONAL_ZONES } from "@/services/zoneRegistry";
 import { OSM_SOUTH_MUMBAI_ROADS } from "@/data/osmRoadNetwork";
 import { interpolatePathByDistance, calculateDistanceMeters, buildRoadConstrainedPath } from "@/services/routingEngine";
@@ -43,6 +44,9 @@ interface Props {
   onSelectResource?: (r: Resource) => void;
   selectedId?: string | null;
   onSelectZone?: (zoneId: string) => void;
+  weatherImpact?: WeatherImpactResult | null;
+  weatherState?: WeatherState | null;
+  weatherScenarioActive?: boolean;
 }
 
 const MUMBAI_CENTER: [number, number] = [72.8258, 18.9388];
@@ -334,6 +338,26 @@ function addMapLayers(map: MapLibreMap) {
   if (!map.getSource("secret-data")) map.addSource("secret-data", { type: "geojson", data: featureCollection([]) });
   if (!map.getSource("secret-heatmap-data")) map.addSource("secret-heatmap-data", { type: "geojson", data: featureCollection([]) });
 
+  // Weather impact zone overlay source (separate from operational data)
+  if (!map.getSource("weather-zone-data")) map.addSource("weather-zone-data", { type: "geojson", data: featureCollection([]) });
+
+  // Weather zone outer dashed ring — drawn OUTSIDE pressure zone boundary so there is no visual overlap.
+  // Radius is 1.85x the operational zone radius, creating a clear outer halo ring.
+  if (!map.getLayer("weather-zone-border")) {
+    map.addLayer({
+      id: "weather-zone-border",
+      type: "line",
+      source: "weather-zone-data",
+      filter: ["==", ["get", "kind"], "weather-zone"],
+      paint: {
+        "line-color": ["coalesce", ["get", "weatherBorderColor"], "rgba(96,165,250,0)"],
+        "line-width": ["interpolate", ["linear"], ["zoom"], 12, 2.0, 14, 3.5, 16, 4.5, 18, 5.5],
+        "line-opacity": ["coalesce", ["get", "weatherBorderOpacity"], 0],
+        "line-dasharray": [4, 3],
+      },
+    });
+  }
+
   // Operational Zone Layer - Ground Level Fill
   if (!map.getLayer("secret-zone-fill")) {
     map.addLayer({
@@ -557,7 +581,8 @@ function buildData(
   showRoutes: boolean,
   selectedCaseId: string | null,
   selectedLocationId: string | null,
-  simulationState?: SimulationState
+  simulationState?: SimulationState,
+  weatherImpact?: WeatherImpactResult | null
 ): GeoJSON.FeatureCollection {
   const features: GeoJSON.Feature[] = [];
 
@@ -567,7 +592,9 @@ function buildData(
   OPERATIONAL_ZONES.forEach((zone) => {
     let pressure = 50;
     const rawKey = zone.id.replace("ZONE_", "");
-    if (simulationState?.nodeLoads) {
+    if (weatherImpact && weatherImpact.affectedZoneDeltas[zone.id]) {
+      pressure = weatherImpact.affectedZoneDeltas[zone.id].weatherAdjustedPressure;
+    } else if (simulationState?.nodeLoads) {
       const load = simulationState.nodeLoads[rawKey] ?? simulationState.nodeLoads[zone.resourceIds[0]];
       if (load !== undefined) {
         const cap = zone.nominalPedestrianCapacity || 5000;
@@ -628,9 +655,11 @@ function buildData(
   // 2. 2D JUNCTION OPERATIONAL ROAD CORRIDORS (Exact Road-Snapped Geometry from 2D Map)
   roads.forEach((road) => {
     if (!road.geometry || road.geometry.length < 2) return;
-    const isCritical = road.congestion >= 90;
-    const isHigh = road.congestion >= 75 && road.congestion < 90;
-    const isModerate = road.congestion >= 50 && road.congestion < 75;
+    const weatherRoad = weatherImpact?.affectedRoadDeltas[road.id];
+    const congestion = weatherRoad ? weatherRoad.weatherAdjustedCongestion : road.congestion;
+    const isCritical = congestion >= 90;
+    const isHigh = congestion >= 75 && congestion < 90;
+    const isModerate = congestion >= 50 && congestion < 75;
     const color = isCritical
       ? "#dc2626"
       : isHigh
@@ -997,6 +1026,206 @@ function createThreeIntelOverlay(): ThreeIntelOverlay {
   return overlay;
 }
 
+// ── Weather condition helpers ──────────────────────────────────────────────
+
+/** Returns border color and opacity for a given WMO weather code (no fill — avoids pressure zone collision). */
+function weatherCodeToMapColors(weatherCode: number): {
+  border: string;
+  borderOpacity: number;
+} {
+  // Clear / mostly clear — warm golden dashes
+  if (weatherCode <= 1) return { border: "rgba(253,224,71,1.0)", borderOpacity: 0.92 };
+  // Partly / mostly cloudy — bright slate-white dashes
+  if (weatherCode <= 3) return { border: "rgba(226,232,240,1.0)", borderOpacity: 0.88 };
+  // Fog — warm mist white
+  if (weatherCode <= 48) return { border: "rgba(241,245,249,1.0)", borderOpacity: 0.88 };
+  // Drizzle — sky blue
+  if (weatherCode <= 55) return { border: "rgba(147,197,253,1.0)", borderOpacity: 0.92 };
+  // Slight / moderate rain — vivid blue
+  if (weatherCode <= 63) return { border: "rgba(96,165,250,1.0)", borderOpacity: 0.95 };
+  // Heavy rain — electric blue
+  if (weatherCode <= 65) return { border: "rgba(59,130,246,1.0)", borderOpacity: 1.0 };
+  // Rain showers — bright cyan-blue
+  if (weatherCode <= 82) return { border: "rgba(125,211,252,1.0)", borderOpacity: 1.0 };
+  // Thunderstorm — vivid violet
+  return { border: "rgba(216,180,254,1.0)", borderOpacity: 1.0 };
+}
+
+/** Returns the weather emoji icon for a WMO code. */
+function weatherCodeToIcon(weatherCode: number): string {
+  if (weatherCode === 0) return "☀️";
+  if (weatherCode <= 1) return "🌤️";
+  if (weatherCode <= 2) return "⛅";
+  if (weatherCode <= 3) return "☁️";
+  if (weatherCode <= 48) return "🌫️";
+  if (weatherCode <= 55) return "🌦️";
+  if (weatherCode <= 65) return "🌧️";
+  if (weatherCode <= 82) return "🌧️";
+  return "⛈️";
+}
+
+/** Builds GeoJSON for weather outer dashed-ring layers. Rings are at 1.85× zone radius so they
+ * sit cleanly OUTSIDE the pressure fill polygons with a clear visual gap. No fill is applied. */
+function buildWeatherZoneData(
+  weatherCode: number,
+  isSimulated: boolean
+): GeoJSON.FeatureCollection {
+  // The JUNCTION operational zones that weather directly impacts.
+  // Operational zone radii from zoneRegistry; the ring is 1.85× that radius.
+  const AFFECTED_ZONES: Array<{ id: string; lat: number; lon: number; radiusM: number }> = [
+    { id: "ZONE_WANKHEDE",        lat: 18.9388, lon: 72.8258, radiusM: 280 },
+    { id: "ZONE_WANKHEDE_GATE_1", lat: 18.9395, lon: 72.8252, radiusM: 120 },
+    { id: "ZONE_WANKHEDE_GATE_2", lat: 18.9381, lon: 72.8264, radiusM: 120 },
+    { id: "ZONE_CHURCHGATE",      lat: 18.9350, lon: 72.8272, radiusM: 200 },
+    { id: "ZONE_MARINE_LINES",    lat: 18.9436, lon: 72.8236, radiusM: 150 },
+    { id: "ZONE_TAXI_ZONE",       lat: 18.9368, lon: 72.8271, radiusM: 100 },
+  ];
+
+  const colors = weatherCodeToMapColors(weatherCode);
+  // Simulated scenario: slightly more opaque to distinguish from live
+  const simBoost = isSimulated ? 1.2 : 1.0;
+
+  const features: GeoJSON.Feature[] = AFFECTED_ZONES.map((zone) => ({
+    type: "Feature",
+    properties: {
+      kind: "weather-zone",
+      zoneId: zone.id,
+      // No fill — only the dashed border ring is used
+      weatherBorderColor: colors.border,
+      weatherBorderOpacity: Math.min(0.98, colors.borderOpacity * simBoost),
+    },
+    geometry: {
+      type: "Polygon",
+      // 1.85× radius places the ring well outside the pressure fill boundary
+      coordinates: createCirclePolygon(zone.lon, zone.lat, zone.radiusM * 1.85, 48),
+    },
+  }));
+  return { type: "FeatureCollection", features };
+}
+
+/** Compact weather HUD panel rendered as React inside the map shell. */
+function WeatherMapOverlay({
+  weatherState,
+  weatherScenarioActive,
+}: {
+  weatherState: WeatherState | null;
+  weatherScenarioActive: boolean;
+}) {
+  if (!weatherState) return null;
+
+  const isLive = weatherState.source === "LIVE";
+  const isDegraded = weatherState.source === "DEGRADED";
+  const icon = weatherCodeToIcon(weatherState.weatherCode);
+
+  // Last-updated string
+  let updatedStr = "—";
+  try {
+    const d = new Date(weatherState.timestamp);
+    if (!isNaN(d.getTime())) {
+      updatedStr = d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
+    }
+  } catch {}
+
+  const sourceBadgeColor = weatherScenarioActive
+    ? "#a78bfa"          // purple for simulated
+    : isLive
+    ? "#34d399"          // green for live
+    : "#f59e0b";          // amber for degraded
+
+  const sourceLabel = weatherScenarioActive
+    ? "SIMULATED"
+    : isLive
+    ? "LIVE"
+    : "DEGRADED";
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 12,
+        right: 12,
+        zIndex: 20,
+        background: "rgba(4, 7, 20, 0.82)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: weatherScenarioActive
+          ? "1px solid rgba(167, 139, 250, 0.55)"
+          : "1px solid rgba(96, 165, 250, 0.30)",
+        borderRadius: 10,
+        padding: "10px 13px",
+        minWidth: 180,
+        maxWidth: 210,
+        fontFamily: "'Inter', 'Outfit', system-ui, sans-serif",
+        boxShadow: weatherScenarioActive
+          ? "0 0 18px rgba(167,139,250,0.18)"
+          : "0 0 14px rgba(0,0,0,0.55)",
+        pointerEvents: "none",
+      }}
+    >
+      {/* Header row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
+        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(148,163,184,0.85)", textTransform: "uppercase", flex: 1 }}>
+          {weatherScenarioActive ? "WEATHER TWIN" : "LIVE WEATHER"}
+        </span>
+        <span
+          style={{
+            fontSize: 8,
+            fontWeight: 800,
+            letterSpacing: "0.10em",
+            color: sourceBadgeColor,
+            background: `${sourceBadgeColor}22`,
+            border: `1px solid ${sourceBadgeColor}55`,
+            borderRadius: 4,
+            padding: "1px 5px",
+          }}
+        >
+          {sourceLabel}
+        </span>
+      </div>
+
+      {/* Condition icon + label */}
+      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 8 }}>
+        <span style={{ fontSize: 22, lineHeight: 1 }}>{icon}</span>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.3, flex: 1 }}>
+          {weatherState.condition}
+        </span>
+      </div>
+
+      {/* Metrics grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 8px" }}>
+        <MetricCell label="TEMP" value={`${weatherState.temperature}°C`} />
+        <MetricCell
+          label="RAIN"
+          value={weatherState.rainfall > 0 ? `${weatherState.rainfall} mm/h` : "Dry"}
+          highlight={weatherState.rainfall > 5}
+        />
+        <MetricCell label="HUMIDITY" value={`${weatherState.humidity}%`} />
+        <MetricCell label="WIND" value={`${weatherState.windSpeed} km/h`} />
+      </div>
+
+      {/* Footer */}
+      <div style={{ marginTop: 7, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 8, color: "rgba(148,163,184,0.60)" }}>Updated {updatedStr}</span>
+        {isDegraded && !weatherScenarioActive && (
+          <span style={{ fontSize: 8, color: "#f59e0b" }}>⚠ Fallback</span>
+        )}
+        {weatherScenarioActive && (
+          <span style={{ fontSize: 8, color: "#a78bfa" }}>What-If mode</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MetricCell({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <span style={{ fontSize: 8, color: "rgba(148,163,184,0.65)", letterSpacing: "0.07em", textTransform: "uppercase" }}>{label}</span>
+      <span style={{ fontSize: 11, fontWeight: 700, color: highlight ? "#60a5fa" : "#f1f5f9", letterSpacing: "0.01em" }}>{value}</span>
+    </div>
+  );
+}
+
 export default function InvestigationMap({
   resources = [],
   hotels = [],
@@ -1009,6 +1238,9 @@ export default function InvestigationMap({
   onSelectResource,
   selectedId,
   onSelectZone,
+  weatherImpact = null,
+  weatherState = null,
+  weatherScenarioActive = false,
 }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -1160,13 +1392,31 @@ export default function InvestigationMap({
     if (!mapRef.current || !ready) return;
     const ds = mapRef.current.getSource("secret-data") as maplibregl.GeoJSONSource | undefined;
     if (ds) {
-      ds.setData(buildData(markers, resources, roads, showCases, showLocations, showRoutes, selectedCaseId, selectedLocationId, simulationState));
+      ds.setData(buildData(markers, resources, roads, showCases, showLocations, showRoutes, selectedCaseId, selectedLocationId, simulationState, weatherImpact));
     }
     const hds = mapRef.current.getSource("secret-heatmap-data") as maplibregl.GeoJSONSource | undefined;
     if (hds) {
       hds.setData(buildHeatmapData(hotspots, markers, activeLayers, resources, simulationState));
     }
-  }, [markers, resources, roads, hotspots, activeLayers, showCases, showLocations, showRoutes, selectedCaseId, selectedLocationId, simulationState, ready]);
+  }, [markers, resources, roads, hotspots, activeLayers, showCases, showLocations, showRoutes, selectedCaseId, selectedLocationId, simulationState, weatherImpact, ready]);
+
+  // Update weather zone aura layer whenever live weather or scenario state changes
+  useEffect(() => {
+    if (!mapRef.current || !ready) return;
+    const wds = mapRef.current.getSource("weather-zone-data") as maplibregl.GeoJSONSource | undefined;
+    if (!wds) return;
+    // Determine which weather code to visualize:
+    // - If a What-If scenario is active, use the weatherImpact severity-derived code
+    // - Otherwise use the live Open-Meteo code from weatherState
+    let effectiveCode = weatherState?.weatherCode ?? 0;
+    if (weatherScenarioActive && weatherImpact) {
+      // Map severity to a representative WMO code for visualization
+      const sev = weatherImpact.severity;
+      effectiveCode = sev === "SEVERE" ? 65 : sev === "HIGH" ? 63 : sev === "MODERATE" ? 55 : 2;
+    }
+    const geoData = buildWeatherZoneData(effectiveCode, weatherScenarioActive);
+    wds.setData(geoData);
+  }, [weatherState, weatherScenarioActive, weatherImpact, ready]);
 
   // Respond to camera request (e.g. flyToGeo / focusLocation)
   useEffect(() => {
@@ -1218,6 +1468,12 @@ export default function InvestigationMap({
       <div ref={hostRef} className="globe-canvas-host maplibre-map-host" />
       <div className="globe-scanlines" />
       <div className="globe-vignette" />
+
+      {/* Live Weather HUD Panel — top-left, non-blocking */}
+      <WeatherMapOverlay
+        weatherState={weatherState}
+        weatherScenarioActive={weatherScenarioActive}
+      />
 
       {selectedMarker && <div className="map-selected-case" role="status">{selectedMarker.title}</div>}
 

@@ -29,6 +29,8 @@ export default function OrganizerDashboard() {
     approveRecommendation,
     rejectRecommendation,
     isRecommendationApproved,
+    weatherState,
+    weatherImpact,
   } = useApp();
 
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
@@ -147,6 +149,39 @@ export default function OrganizerDashboard() {
           <div className={styles.situationEyebrow}>
             <span className={styles.scenarioPill}>{scenarioLabel}</span>
             <span className={styles.eventContextTag}>WANKHEDE STADIUM · 33,000 SPECTATORS</span>
+            {weatherState && (
+              <Link
+                href="/organizer/simulation?scenario=weather"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "var(--paper)",
+                  border: "1px solid var(--neutral-dark)",
+                  padding: "2px 8px",
+                  fontFamily: "var(--font-display)",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "var(--ink)",
+                  textDecoration: "none",
+                  marginLeft: "auto",
+                }}
+                title="Live Weather Context · Click to test in What-If Simulator"
+              >
+                <span>🌧️ {weatherState.condition} · {weatherState.temperature}°C · {weatherState.rainfall} mm/h</span>
+                <span
+                  className={`pill ${weatherState.source === "LIVE" ? "pill-live" : "pill-watch"}`}
+                  style={{ fontSize: 8, padding: "1px 5px" }}
+                >
+                  {weatherState.source}
+                </span>
+                {weatherImpact?.scenarioActive && (
+                  <span className="pill pill-critical" style={{ fontSize: 8, padding: "1px 5px" }}>
+                    TWIN: {weatherImpact.severity}
+                  </span>
+                )}
+              </Link>
+            )}
           </div>
 
           {/* Headline: zone-specific */}
@@ -341,6 +376,19 @@ export default function OrganizerDashboard() {
             <span className={styles.signalName}>Hospitality &amp; Staging</span>
             <span className={styles.signalValue}>1,240 Usable</span>
             <span className={styles.signalStatus}><span className={styles.signalDot} />ONLINE</span>
+          </div>
+          <div className={styles.signalRow}>
+            <span className={styles.signalName}>Live Meteorological Feed</span>
+            <span className={styles.signalValue}>
+              {weatherState ? `${weatherState.condition} · ${weatherState.temperature}°C` : "29°C · 0.0 mm/h"}
+            </span>
+            <span className={styles.signalStatus}>
+              <span
+                className={styles.signalDot}
+                style={{ background: weatherState?.source === "LIVE" ? "var(--green)" : "var(--yellow)" }}
+              />
+              {weatherState?.source === "LIVE" ? "ONLINE" : "CACHED"}
+            </span>
           </div>
         </div>
       </div>

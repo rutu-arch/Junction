@@ -644,3 +644,235 @@
   transition: width 0.3s ease;
 }
 
+/* WEATHER DIGITAL TWIN EXTENSION STYLES */
+.weatherModeSwitcher {
+  display: flex;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  margin-bottom: 6px;
+}
+
+.weatherModeBtn {
+  flex: 1;
+  padding: 8px 10px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--ink-muted);
+  border: none;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+
+.weatherModeBtnActive {
+  background: var(--ink) !important;
+  color: var(--white) !important;
+}
+
+.weatherBaselineCard {
+  background: var(--paper);
+  border: 1px solid var(--neutral-dark);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weatherBaselineHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.weatherBaselineTitle {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.weatherMetricsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.weatherMetricItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weatherMetricVal {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.weatherMetricLbl {
+  font-family: var(--font-display);
+  font-size: 9px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.weatherActionsRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.btnWeatherRun {
+  flex: 1;
+  background: var(--yellow-state);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 8px 12px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--ink);
+  transition: all var(--t-fast);
+}
+
+.btnWeatherRun:hover {
+  background: var(--yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--ink);
+}
+
+.btnWeatherReset {
+  background: var(--white);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+
+.btnWeatherReset:hover {
+  background: var(--paper);
+}
+
+/* COMPARISON MATRIX */
+.weatherMatrixCard {
+  background: var(--white);
+  border: 1.5px solid var(--ink);
+  box-shadow: 2px 2px 0px rgba(0,0,0,0.06);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.weatherMatrixHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-bottom: 1px solid var(--neutral);
+  padding-bottom: 12px;
+}
+
+.weatherMatrixTitle {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.weatherMatrixSummary {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--ink-muted);
+  max-width: 650px;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.propagationBar {
+  background: var(--paper);
+  border: 1px solid var(--neutral-dark);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.propagationArrow {
+  color: var(--yellow);
+  font-weight: 800;
+}
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparisonTable th {
+  text-align: left;
+  padding: 10px 12px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--paper);
+  border-bottom: 2px solid var(--ink);
+}
+
+.comparisonTable td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--neutral);
+  font-size: 12px;
+  color: var(--ink);
+  vertical-align: middle;
+}
+
+.deltaBadgePlus {
+  background: #fef2f2;
+  color: var(--red);
+  border: 1px solid #fecaca;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.deltaBadgeNeutral {
+  background: var(--paper);
+  color: var(--ink-muted);
+  border: 1px solid var(--neutral-dark);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+

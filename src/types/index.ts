@@ -49,6 +49,7 @@ export * from "./audit";
 export * from "./resource";
 export * from "./cctv";
 export * from "./aiRecommendation";
+export * from "./weather";
 
 export interface Zone {
   id: string;

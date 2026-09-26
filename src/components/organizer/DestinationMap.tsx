@@ -81,6 +81,9 @@ export default function DestinationMap({
     simParams,
     latestObservations,
     zones,
+    weatherImpact,
+    weatherScenarioActive,
+    weatherState,
   } = useApp();
 
   const { worldProvider, setWorldProvider } = useMapStore();
@@ -375,6 +378,9 @@ export default function DestinationMap({
             onSelectResource={onSelectResource}
             selectedId={selectedId}
             onSelectZone={(zoneId) => setSelectedZoneId(zoneId)}
+            weatherImpact={weatherScenarioActive ? weatherImpact : null}
+            weatherState={weatherState}
+            weatherScenarioActive={weatherScenarioActive}
           />
         )}
 
@@ -384,6 +390,9 @@ export default function DestinationMap({
             <div className={styles.simInspectHeader}>
               <div className={styles.simInspectTitleGroup}>
                 <span className={styles.simInspectKicker}>SIMULATION INSPECT</span>
+                {weatherScenarioActive && (
+                  <span className="pill pill-yellow" style={{ fontSize: 9 }}>🌧️ WEATHER TWIN</span>
+                )}
                 <span
                   className={`${styles.simInspectStatusBadge} ${
                     isRunning

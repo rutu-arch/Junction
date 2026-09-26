@@ -26,6 +26,13 @@ import { sensorFusionEngine } from "@/services/sensorFusionEngine";
 import { hotspotAndCascadeEngine } from "@/services/hotspotAndCascadeEngine";
 import { recommendationLifecycleEngine } from "@/services/recommendationLifecycleEngine";
 import { aiRecommendationPlanner } from "@/services/aiRecommendationPlanner";
+import {
+  WeatherState,
+  SocialSignal,
+  WeatherTwinParams,
+  WeatherImpactResult,
+} from "@/types/weather";
+import { weatherImpactModel } from "@/services/weatherImpactModel";
 
 interface AppContextValue {
   // Scenario
@@ -100,6 +107,20 @@ interface AppContextValue {
   resetFaultInjections: () => void;
   selectedEvidenceZoneId: string;
   setSelectedEvidenceZoneId: (zoneId: string) => void;
+
+  // Weather Digital Twin Layer (HackCelestial Task 1)
+  weatherState: WeatherState | null;
+  weatherLoading: boolean;
+  weatherError: string | null;
+  refreshWeather: () => Promise<void>;
+  socialSignals: SocialSignal[];
+  weatherTwinParams: WeatherTwinParams;
+  setWeatherTwinParams: (p: Partial<WeatherTwinParams>) => void;
+  weatherImpact: WeatherImpactResult | null;
+  weatherScenarioActive: boolean;
+  runWeatherTwin: (customParams?: Partial<WeatherTwinParams>) => void;
+  resetWeatherTwin: () => void;
+  weatherAdjustedZones: ZoneState[];
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -636,6 +657,114 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await fetchAiPlan(true);
   }, [fetchAiPlan]);
 
+  // ── Weather Digital Twin Layer (HackCelestial Task 1) ───────────────────────
+  const [weatherState, setWeatherState] = useState<WeatherState | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState<boolean>(false);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [socialSignals, setSocialSignals] = useState<SocialSignal[]>([]);
+  const [weatherScenarioActive, setWeatherScenarioActive] = useState<boolean>(false);
+  const [weatherImpact, setWeatherImpact] = useState<WeatherImpactResult | null>(null);
+  const [weatherTwinParams, setWeatherTwinParamsState] = useState<WeatherTwinParams>({
+    rainfallIntensity: 25, // mm/h
+    rainfallDuration: 45, // min
+    temperature: 28,
+    windSpeed: 22,
+    affectedArea: "WANKHEDE_CORRIDOR",
+  });
+
+  const refreshWeather = useCallback(async () => {
+    setWeatherLoading(true);
+    setWeatherError(null);
+    try {
+      const res = await fetch("/api/weather?refresh=true");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.weather) {
+          setWeatherState(data.weather);
+        }
+      } else {
+        setWeatherError("Weather endpoint returned non-200");
+      }
+    } catch (err) {
+      console.warn("[AppContext] Weather refresh failed:", err);
+      setWeatherError((err as Error).message);
+    } finally {
+      setWeatherLoading(false);
+    }
+
+    // Refresh social signals
+    try {
+      const sRes = await fetch("/api/social-signals");
+      if (sRes.ok) {
+        const sData = await sRes.json();
+        if (Array.isArray(sData.signals)) {
+          setSocialSignals(sData.signals);
+        }
+      }
+    } catch (err) {
+      console.warn("[AppContext] Social signals fetch failed:", err);
+    }
+  }, []);
+
+  // Initial fetch and 5-minute periodic auto-refresh
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      refreshWeather();
+      const interval = setInterval(refreshWeather, 5 * 60 * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [refreshWeather]);
+
+  const setWeatherTwinParams = useCallback((p: Partial<WeatherTwinParams>) => {
+    setWeatherTwinParamsState(prev => ({ ...prev, ...p }));
+  }, []);
+
+  const runWeatherTwin = useCallback((customParams?: Partial<WeatherTwinParams>) => {
+    const paramsToRun = { ...weatherTwinParams, ...customParams };
+    if (customParams) {
+      setWeatherTwinParamsState(paramsToRun);
+    }
+    const impact = weatherImpactModel.evaluateImpact(paramsToRun, zones, []);
+    setWeatherImpact(impact);
+    setWeatherScenarioActive(true);
+  }, [weatherTwinParams, zones]);
+
+  const resetWeatherTwin = useCallback(() => {
+    setWeatherScenarioActive(false);
+    setWeatherImpact(null);
+  }, []);
+
+  // Weather-adjusted zone states: purely hypothetical projection, leaving baseline zones intact
+  const weatherAdjustedZones = useMemo((): ZoneState[] => {
+    if (!weatherScenarioActive || !weatherImpact) {
+      return zones;
+    }
+    return zones.map(zone => {
+      const deltaObj = weatherImpact.affectedZoneDeltas[zone.id];
+      if (!deltaObj) return zone;
+
+      const adjustedPressure = deltaObj.weatherAdjustedPressure;
+      const pressureRatio = adjustedPressure / Math.max(1, zone.pressure);
+
+      return {
+        ...zone,
+        pressure: adjustedPressure,
+        predictedPressure15: Math.min(99, Math.round(zone.predictedPressure15 * pressureRatio)),
+        predictedPressure30: Math.min(99, Math.round(zone.predictedPressure30 * pressureRatio)),
+        predictedPressure60: Math.min(99, Math.round(zone.predictedPressure60 * pressureRatio)),
+        pressureLevel:
+          adjustedPressure >= 90
+            ? "CRITICAL"
+            : adjustedPressure >= 75
+            ? "HIGH"
+            : adjustedPressure >= 50
+            ? "WATCH"
+            : "NORMAL",
+        inflowRate: Math.round(zone.inflowRate * weatherImpact.walkingSpeedMultiplier),
+      };
+    });
+  }, [zones, weatherScenarioActive, weatherImpact]);
+
   return (
     <AppContext.Provider value={{
       activeScenario, setScenario,
@@ -652,6 +781,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       devices, latestObservations, hotspots, cascadeResult, interventions, activeInterventions, auditRecords,
       faultInjections, toggleDeviceOutage, toggleDeviceLag, toggleDeviceConflict, resetFaultInjections,
       selectedEvidenceZoneId, setSelectedEvidenceZoneId,
+      weatherState, weatherLoading, weatherError, refreshWeather, socialSignals,
+      weatherTwinParams, setWeatherTwinParams, weatherImpact, weatherScenarioActive,
+      runWeatherTwin, resetWeatherTwin, weatherAdjustedZones,
     }}>
       {children}
     </AppContext.Provider>
