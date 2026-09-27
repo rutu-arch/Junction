@@ -47,3 +47,9 @@ attendee_flutter_app/.flutter-plugins-dependencies
 attendee_flutter_app/.idea/
 .rocketride/
 
+# Large video files (>50MB — use Git LFS or cloud storage instead)
+public/videos/cctv_suite/*.mp4
+
+# GitHub Actions workflows (require 'workflow' token scope)
+.github/workflows/
+
