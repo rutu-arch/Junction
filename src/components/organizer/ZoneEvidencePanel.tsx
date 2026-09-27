@@ -4,17 +4,17 @@ import { useApp } from "@/state/AppContext";
 import { OPERATIONAL_ZONES } from "@/services/zoneRegistry";
 import { ZONE_CAPACITY_PROFILES } from "@/services/sensorFusionEngine";
 import ConfidenceBadge from "@/components/ui/ConfidenceBadge";
-import styles from "./ZoneInputEvidencePanel.module.css";
+import styles from "./ZoneEvidencePanel.module.css";
 
-interface ZoneInputEvidencePanelProps {
+interface ZoneEvidencePanelProps {
   initialZoneId?: string;
   onClose?: () => void;
 }
 
-export default function ZoneInputEvidencePanel({
+export default function ZoneEvidencePanel({
   initialZoneId,
   onClose,
-}: ZoneInputEvidencePanelProps) {
+}: ZoneEvidencePanelProps) {
   const {
     zones,
     devices,

@@ -1,0 +1,48 @@
+import type { StadiumLevel } from "./types";
+
+export const STADIUM_LEVELS: StadiumLevel[] = [
+  {
+    id: "basement",
+    name: "Basement Level",
+    shortLabel: "L0",
+    floorIndex: 0,
+    heightMeters: 3.5,
+    source: "wayfinding",
+    confidence: "confirmed",
+    description: "Substation, Press Briefing Hall, Museum, Players Facilities, and Lounge. Step-free accessible from ground foyer.",
+    accessible: true,
+  },
+  {
+    id: "ground",
+    name: "Ground Concourse",
+    shortLabel: "L1",
+    floorIndex: 1,
+    heightMeters: 6.75,
+    source: "wayfinding",
+    confidence: "confirmed",
+    description: "Main stadium bowl entrance, VIP / Players entry, pavilion gates, perimeter offices, and concourse routes.",
+    accessible: true,
+  },
+  {
+    id: "level-2",
+    name: "Level 2 (Club & Media Tier)",
+    shortLabel: "L2",
+    floorIndex: 2,
+    heightMeters: 3.5,
+    source: "wayfinding",
+    confidence: "confirmed",
+    description: "Commentators Entry, Press Box Entry, Hospitality and Facilities. Confirmed stairs-only access (no public lift).",
+    accessible: false,
+  },
+  {
+    id: "level-3",
+    name: "Level 3 (Upper Tier)",
+    shortLabel: "L3",
+    floorIndex: 3,
+    heightMeters: 3.0,
+    source: "wayfinding",
+    confidence: "confirmed",
+    description: "Upper seating tiers, snacks kiosks, public facilities. Confirmed stairs-only access.",
+    accessible: false,
+  },
+];

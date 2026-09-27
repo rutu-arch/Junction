@@ -78,14 +78,17 @@ export async function requireOrganizer() {
 
   if (!profile) {
     redirect("/login/organizer");
+    throw new Error("Unauthorized");
   }
 
   if (profile.role !== "ORGANIZER") {
     // If user has a different role in PostgreSQL, redirect to their authorized section
     if (profile.role === "RESTAURANT_PARTNER") {
       redirect("/partner");
+      throw new Error("Unauthorized");
     }
     redirect("/login/organizer?error=unauthorized");
+    throw new Error("Unauthorized");
   }
 
   return profile;
@@ -99,10 +102,12 @@ export async function requireRestaurantPartner() {
 
   if (!profile) {
     redirect("/login/restaurant");
+    throw new Error("Unauthorized");
   }
 
   if (profile.role !== "RESTAURANT_PARTNER" && profile.role !== "ORGANIZER") {
     redirect("/login/restaurant?error=unauthorized");
+    throw new Error("Unauthorized");
   }
 
   // Fetch scoped restaurant memberships

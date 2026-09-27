@@ -377,7 +377,7 @@ export default function DestinationMap({
             activeLayers={activeLayers}
             onSelectResource={onSelectResource}
             selectedId={selectedId}
-            onSelectZone={(zoneId) => setSelectedZoneId(zoneId)}
+            onSelectZone={(zoneId: string) => setSelectedZoneId(zoneId)}
             weatherImpact={weatherScenarioActive ? weatherImpact : null}
             weatherState={weatherState}
             weatherScenarioActive={weatherScenarioActive}

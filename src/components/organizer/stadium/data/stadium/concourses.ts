@@ -1,0 +1,48 @@
+import type { StadiumConcourse } from "./types";
+
+export const STADIUM_CONCOURSES: StadiumConcourse[] = [
+  {
+    id: "concW",
+    name: "West Concourse",
+    shortLabel: "CONC-WEST",
+    levelId: "ground",
+    source: "wayfinding",
+    confidence: "assumed",
+    position: [-9.2, 0.6, 0],
+    accessible: true,
+    description: "Spacious pedestrian distribution concourse connecting Vijay Merchant Stand, North Stand, and Garware Pavilion.",
+  },
+  {
+    id: "concE",
+    name: "East Concourse",
+    shortLabel: "CONC-EAST",
+    levelId: "ground",
+    source: "wayfinding",
+    confidence: "assumed",
+    position: [9.2, 0.6, 0],
+    accessible: true,
+    description: "Eastern distribution concourse running parallel to Sunil Gavaskar Stand and perimeter administrative offices.",
+  },
+  {
+    id: "concN",
+    name: "North Grand Concourse",
+    shortLabel: "CONC-NORTH",
+    levelId: "ground",
+    source: "inferred",
+    confidence: "assumed",
+    position: [0, 0.6, 9.5],
+    accessible: true,
+    description: "North arrival plaza behind Sachin Tendulkar Stand, with access to media staircases and ticket scanning.",
+  },
+  {
+    id: "concS",
+    name: "South Pavilion Concourse",
+    shortLabel: "CONC-SOUTH",
+    levelId: "ground",
+    source: "inferred",
+    confidence: "assumed",
+    position: [0, 0.6, -9.5],
+    accessible: true,
+    description: "VIP and official promenade linking MCA Pavilion, Players Entrance, and match operations rooms.",
+  },
+];

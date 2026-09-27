@@ -4,7 +4,7 @@ import { useApp } from "@/state/AppContext";
 import PressureIndicator from "@/components/ui/PressureIndicator";
 import ConfidenceBadge from "@/components/ui/ConfidenceBadge";
 import PageHeader from "@/components/ui/PageHeader";
-import ZoneInputEvidencePanel from "@/components/organizer/ZoneInputEvidencePanel";
+import ZoneEvidencePanel from "@/components/organizer/ZoneEvidencePanel";
 import styles from "./capacity.module.css";
 
 export default function CapacityPage() {
@@ -180,7 +180,7 @@ export default function CapacityPage() {
 
       {/* SENSOR INPUTS & FUSION EVIDENCE TAB */}
       {activeTab === "SENSOR_EVIDENCE" && (
-        <ZoneInputEvidencePanel />
+        <ZoneEvidencePanel />
       )}
     </div>
   );

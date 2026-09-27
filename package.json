@@ -14,6 +14,9 @@
   "dependencies": {
     "@clerk/nextjs": "^7.9.7",
     "@google/genai": "^2.24.0",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
+    "@react-three/postprocessing": "^3.1.2",
     "@types/cesium": "^1.67.14",
     "@types/leaflet": "^1.9.22",
     "@types/pg": "^8.23.1",

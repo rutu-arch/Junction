@@ -18,6 +18,7 @@ import {
   Sliders,
   Calendar,
   ShieldAlert,
+  ArrowLeftRight,
 } from "lucide-react";
 import FlowIndicator from "@/components/organizer/FlowIndicator";
 
@@ -70,14 +71,20 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
   const { signOut } = useClerk();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Auth protection guard
+  const isDevPreview = pathname === "/organizer/stadium-preview";
+  const isStandaloneRoute =
+    pathname === "/organizer/select" ||
+    pathname === "/organizer/stadium" ||
+    pathname === "/organizer/stadium-preview";
+
+  // Auth protection guard (bypassed only on dev preview route in non-production)
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    if (!isDevPreview && isLoaded && !isSignedIn) {
       router.replace(`/login/organizer?redirect=${encodeURIComponent(pathname)}`);
     }
-  }, [isLoaded, isSignedIn, router, pathname]);
+  }, [isLoaded, isSignedIn, router, pathname, isDevPreview]);
 
-  if (!isLoaded || !isSignedIn) {
+  if (!isDevPreview && (!isLoaded || !isSignedIn)) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#111111" }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
@@ -93,7 +100,7 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
   // Strict Role Check: Must be ORGANIZER (or unset in dev mode)
   const junctionRole = user?.publicMetadata?.junctionRole as string | undefined;
   const isProduction = process.env.NODE_ENV === "production";
-  const isAuthorized = junctionRole === "ORGANIZER" || (!isProduction && !junctionRole);
+  const isAuthorized = isDevPreview || junctionRole === "ORGANIZER" || (!isProduction && !junctionRole);
 
   if (!isAuthorized) {
     const isPartner = junctionRole === "RESTAURANT_PARTNER";
@@ -110,7 +117,7 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
               : "This account is not configured as a JUNCTION Organizer."}
           </p>
           <p style={{ color: "#888888", fontSize: 12, marginBottom: 24 }}>
-            Authenticated Account: <strong style={{ color: "#ffffff" }}>{user.fullName || user.primaryEmailAddress?.emailAddress}</strong>
+            Authenticated Account: <strong style={{ color: "#ffffff" }}>{user?.fullName || user?.primaryEmailAddress?.emailAddress}</strong>
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <button
@@ -134,6 +141,11 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
     );
   }
 
+  // Standalone full-viewport mode for /organizer/select, /organizer/stadium, and /organizer/stadium-preview
+  if (isStandaloneRoute) {
+    return <>{children}</>;
+  }
+
   const userDisplayName = user?.fullName || user?.primaryEmailAddress?.emailAddress || "City Operations Command";
 
   return (
@@ -153,6 +165,34 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
           >
             {isCollapsed ? "»" : "«"}
           </button>
+        </div>
+
+        {/* Switch Operations Action */}
+        <div style={{ padding: isCollapsed ? "8px 6px" : "8px 12px", borderBottom: "1px solid var(--border-subtle)" }}>
+          <Link
+            href="/organizer/select"
+            className={styles.switchOpsBtn}
+            title="Return to Scope Selection"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: isCollapsed ? "center" : "flex-start",
+              gap: "8px",
+              padding: "7px 10px",
+              background: "rgba(255, 214, 0, 0.08)",
+              border: "1px solid rgba(255, 214, 0, 0.25)",
+              borderRadius: "6px",
+              color: "#ffd600",
+              fontSize: "11px",
+              fontWeight: 700,
+              textDecoration: "none",
+              letterSpacing: "0.04em",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <ArrowLeftRight size={13} strokeWidth={2.5} />
+            {!isCollapsed && <span>SWITCH OPERATIONS</span>}
+          </Link>
         </div>
 
         <nav className={styles.sidebarNav}>

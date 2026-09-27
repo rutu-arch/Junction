@@ -1,0 +1,227 @@
+.page {
+  min-height: 100vh;
+  width: 100vw;
+  background-color: #0c0e12;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(245, 196, 0, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(245, 196, 0, 0.04) 0%, transparent 40%),
+    linear-gradient(to bottom, rgba(12, 14, 18, 0.98), #0c0e12);
+  color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  box-sizing: border-box;
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+.header {
+  text-align: center;
+  max-width: 680px;
+  margin-bottom: 48px;
+}
+
+.brandTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #F5C400;
+  text-transform: uppercase;
+  background: rgba(245, 196, 0, 0.08);
+  border: 1px solid rgba(245, 196, 0, 0.28);
+  padding: 5px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  max-width: 1040px;
+  width: 100%;
+}
+
+@media (max-width: 860px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 12px;
+  padding: 36px 32px;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.internalCard {
+  background: linear-gradient(180deg, rgba(22, 25, 32, 0.85) 0%, rgba(13, 15, 20, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.internalCard:hover {
+  transform: translateY(-4px);
+  border-color: #F5C400;
+  box-shadow: 0 20px 40px rgba(245, 196, 0, 0.12), inset 0 1px 0 rgba(245, 196, 0, 0.25);
+}
+
+.externalCard {
+  background: linear-gradient(180deg, rgba(22, 25, 32, 0.85) 0%, rgba(13, 15, 20, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.externalCard:hover {
+  transform: translateY(-4px);
+  border-color: #F5C400;
+  box-shadow: 0 20px 40px rgba(245, 196, 0, 0.12), inset 0 1px 0 rgba(245, 196, 0, 0.25);
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.scopeBadge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.internalBadge {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.externalBadge {
+  color: #F5C400;
+  background: rgba(245, 196, 0, 0.1);
+  border: 1px solid rgba(245, 196, 0, 0.28);
+}
+
+.techTag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.internalTechTag {
+  color: #00f0ff;
+  opacity: 0.85;
+}
+
+.externalTechTag {
+  color: #94a3b8;
+}
+
+.cardTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.01em;
+}
+
+.cardDesc {
+  font-size: 14px;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.featureItem {
+  font-size: 13px;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.internalBullet {
+  color: #F5C400;
+  font-weight: bold;
+}
+
+.externalBullet {
+  color: #F5C400;
+  font-weight: bold;
+}
+
+.cardCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  transition: all 0.2s ease;
+}
+
+.internalCta {
+  background: rgba(245, 196, 0, 0.1);
+  color: #F5C400;
+  border: 1px solid rgba(245, 196, 0, 0.3);
+}
+
+.internalCard:hover .internalCta {
+  background: #F5C400;
+  color: #0c0e12;
+  border-color: #F5C400;
+}
+
+.externalCta {
+  background: rgba(245, 196, 0, 0.1);
+  color: #F5C400;
+  border: 1px solid rgba(245, 196, 0, 0.3);
+}
+
+.externalCard:hover .externalCta {
+  background: #F5C400;
+  color: #0c0e12;
+  border-color: #F5C400;
+}

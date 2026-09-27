@@ -71,7 +71,7 @@
 
 .overviewGrid {
   display: grid;
-  grid-templateColumns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 10px;
 }
 

@@ -62,7 +62,7 @@ export default function OrganizerSignInPage() {
                   Account: <strong>{user.fullName || user.primaryEmailAddress?.emailAddress}</strong>
                 </p>
                 <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-                  <Link href="/organizer" className="btn btn-yellow" style={{ fontWeight: 800 }}>
+                  <Link href="/organizer/select" className="btn btn-yellow" style={{ fontWeight: 800 }}>
                     Continue to Organizer Console →
                   </Link>
                   <button onClick={() => signOut({ redirectUrl: "/login/organizer" })} className="btn btn-outline" style={{ fontWeight: 700 }}>
@@ -119,8 +119,8 @@ export default function OrganizerSignInPage() {
                 routing="path"
                 path="/login/organizer"
                 signUpUrl="/sign-up"
-                fallbackRedirectUrl="/organizer"
-                forceRedirectUrl="/organizer"
+                fallbackRedirectUrl="/organizer/select"
+                forceRedirectUrl="/organizer/select"
                 appearance={junctionClerkAppearance}
               />
             </Suspense>

@@ -1,0 +1,1679 @@
+/* ==========================================================================
+   HoloJi Stadium CSS — scoped under .holoji-root
+   All design tokens and resets are isolated to avoid contaminating the
+   JUNCTION dashboard (globals.css owns html/body/root for other pages).
+   ========================================================================== */
+
+/* Load JUNCTION platform fonts inside this scoped component */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');.holoji-root {
+  /* HoloJi design tokens — locally scoped */
+  --bg-dark: #07090e;
+  --bg-deep: #03060a;
+  --panel-bg: rgba(10, 14, 20, 0.88);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-border-glow: rgba(255, 255, 255, 0.18);
+  --cyan-primary: #00f0ff;
+  --cyan-bright: #7df9ff;
+  --cyan-muted: #64748b;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent-teal: #38f9d7;
+  --accent-emerald: #16A34A;
+  --accent-gold: #F5C400;
+  --accent-amber: #EA580C;
+  --accent-coral: #DC2626;
+  /* JUNCTION platform brand tokens — shared visual language */
+  --junction-yellow: #F5C400;
+  --junction-yellow-dim: rgba(245, 196, 0, 0.12);
+  --junction-yellow-border: rgba(245, 196, 0, 0.35);
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+
+  /* Reset: scoped box-sizing, user-select, and layout */
+  box-sizing: border-box;
+  user-select: none;
+
+  /* Full-viewport dark background for the stadium experience */
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  background-image:
+    radial-gradient(circle at 50% 45%, #08121e 0%, #040810 50%, #010408 100%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scoped box-sizing reset for all descendants */
+.holoji-root *,
+.holoji-root *::before,
+.holoji-root *::after {
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+
+.scene-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   HUD Overlay & Command Center UI
+   ========================================================================== */
+
+.hud-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+/* Corner Technical Brackets */
+.hud-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(255, 255, 255, 0.12);
+  border-style: solid;
+  pointer-events: none;
+}
+
+.hud-corner-tl {
+  top: 14px;
+  left: 14px;
+  border-width: 2px 0 0 2px;
+}
+
+.hud-corner-tr {
+  top: 14px;
+  right: 14px;
+  border-width: 2px 2px 0 0;
+}
+
+.hud-corner-bl {
+  bottom: 14px;
+  left: 14px;
+  border-width: 0 0 2px 2px;
+}
+
+.hud-corner-br {
+  bottom: 14px;
+  right: 14px;
+  border-width: 0 2px 2px 0;
+}
+
+/* ==========================================================================
+   JUNCTION Platform Navigation Button
+   Consistent with JUNCTION's global btn language — used for Switch Operations
+   ========================================================================== */
+
+.junction-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(245, 196, 0, 0.1);
+  border: 1px solid rgba(245, 196, 0, 0.35);
+  color: var(--junction-yellow);
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
+.junction-nav-btn:hover {
+  background: rgba(245, 196, 0, 0.2);
+  border-color: var(--junction-yellow);
+  box-shadow: 0 0 14px rgba(245, 196, 0, 0.2);
+}
+
+/* HUD Panels */
+.hud-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  padding: 16px 20px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hud-panel:hover {
+  border-color: var(--panel-border-glow);
+}
+
+/* Top Left Main Header */
+.hud-top-left {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  max-width: 440px;
+}
+
+.hud-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.hud-tag {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  /* JUNCTION gold — marks this as a JUNCTION platform module */
+  color: var(--junction-yellow);
+  opacity: 0.9;
+}
+
+.hud-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(22, 163, 74, 0.12);
+  border: 1px solid rgba(22, 163, 74, 0.35);
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: #4ade80;
+  letter-spacing: 0.08em;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.hud-title {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.hud-subinfo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.hud-separator {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Phase 2A Zone Subbar in Header */
+.hud-zone-subbar {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.zone-toggle-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hud-btn-zone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hud-btn-zone:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.hud-btn-zone.active {
+  background: var(--junction-yellow-dim);
+  border-color: var(--junction-yellow);
+  color: var(--junction-yellow);
+  box-shadow: 0 0 10px rgba(245, 196, 0, 0.2);
+}
+
+.hud-btn-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hud-btn-mini:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.hud-btn-mini.active {
+  background: var(--junction-yellow-dim);
+  border-color: var(--junction-yellow);
+  color: var(--junction-yellow);
+}
+
+.hud-btn-mini.highlight {
+  background: var(--junction-yellow-dim);
+  border-color: var(--junction-yellow);
+  color: var(--junction-yellow);
+}
+
+/* Top Right Controls */
+.hud-top-right {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 290px;
+}
+
+.hud-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hud-group-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #94a3b8;
+}
+
+.hud-btn-row {
+  display: flex;
+  gap: 6px;
+}
+
+.hud-btn-row.compact {
+  gap: 4px;
+}
+
+.hud-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hud-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.hud-btn.active {
+  background: var(--junction-yellow-dim);
+  border-color: var(--junction-yellow);
+  color: var(--junction-yellow);
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(245, 196, 0, 0.2), inset 0 0 6px rgba(245, 196, 0, 0.1);
+}
+
+.hud-toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.hud-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 10.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hud-pill-btn:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.hud-pill-btn.active {
+  background: var(--junction-yellow-dim);
+  border-color: var(--junction-yellow);
+  color: var(--junction-yellow);
+  font-weight: 600;
+}
+
+/* Bottom Left Telemetry */
+.hud-bottom-left {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  padding: 12px 16px;
+}
+
+.hud-telemetry-grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 8px 24px;
+}
+
+.telemetry-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.telemetry-key {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.telemetry-val {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+/* Bottom Right Live Scan & Hints */
+.hud-bottom-right {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 18px;
+}
+
+.hud-live-scan {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.scan-altitude-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+.scan-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--cyan-primary);
+  box-shadow: 0 0 10px var(--cyan-primary);
+  animation: pulse-dot 1.5s infinite;
+}
+
+.scan-label {
+  font-size: 11px;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+}
+
+.scan-num {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cyan-bright);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+  min-width: 55px;
+}
+
+.hud-nav-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9.5px;
+  color: rgba(148, 163, 184, 0.7);
+  letter-spacing: 0.05em;
+}
+
+.dot-sep {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   Phase 2A 3D Floating Badges & Gate Markers
+   ========================================================================== */
+
+.zone-label-badge {
+  background: rgba(1, 15, 28, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: #ffffff;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.zone-label-badge:hover,
+.zone-label-badge.hovered {
+  border-color: var(--cyan-primary);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+}
+
+.zone-label-badge.selected {
+  background: rgba(0, 35, 25, 0.92);
+  border-color: var(--accent-emerald);
+  box-shadow: 0 0 16px rgba(0, 255, 170, 0.6);
+}
+
+.zone-label-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zone-name {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--cyan-bright);
+}
+
+.zone-label-badge.selected .zone-name {
+  color: var(--accent-emerald);
+}
+
+.confidence-tag {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.conf-confirmed {
+  background: rgba(0, 255, 170, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(0, 255, 170, 0.3);
+}
+
+.conf-approximate {
+  background: rgba(255, 170, 0, 0.15);
+  color: var(--accent-amber);
+  border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.conf-assumed {
+  background: rgba(0, 162, 255, 0.15);
+  color: #70c4ff;
+  border: 1px solid rgba(0, 162, 255, 0.3);
+}
+
+.zone-label-badge.status-critical {
+  border-color: #ff365f;
+  box-shadow: 0 0 16px rgba(255, 54, 95, 0.55), 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.zone-label-badge.status-high {
+  border-color: #ffc400;
+  box-shadow: 0 0 12px rgba(255, 196, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.occ-pill {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.occ-low {
+  background: rgba(56, 249, 215, 0.18);
+  color: #38f9d7;
+  border: 1px solid rgba(56, 249, 215, 0.4);
+}
+
+.occ-normal {
+  background: rgba(0, 240, 255, 0.18);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.4);
+}
+
+.occ-high {
+  background: rgba(255, 196, 0, 0.25);
+  color: #ffc400;
+  border: 1px solid rgba(255, 196, 0, 0.6);
+}
+
+.occ-critical {
+  background: rgba(255, 54, 95, 0.3);
+  color: #ff365f;
+  border: 1px solid rgba(255, 54, 95, 0.7);
+  animation: pulse-dot 1.4s infinite;
+}
+
+.occ-hud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 100px;
+  letter-spacing: 0.06em;
+}
+
+.occ-hud-low {
+  background: rgba(56, 249, 215, 0.12);
+  color: #38f9d7;
+  border: 1px solid rgba(56, 249, 215, 0.35);
+}
+
+.occ-hud-normal {
+  background: rgba(0, 240, 255, 0.12);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.35);
+}
+
+.occ-hud-high {
+  background: rgba(255, 196, 0, 0.2);
+  color: #ffc400;
+  border: 1px solid rgba(255, 196, 0, 0.5);
+}
+
+.occ-hud-critical {
+  background: rgba(255, 54, 95, 0.25);
+  color: #ff365f;
+  border: 1px solid rgba(255, 54, 95, 0.6);
+  animation: pulse-dot 1.5s infinite;
+}
+
+.zone-occ-detail {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: var(--cyan-bright);
+}
+
+.zone-label-detail {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(0, 240, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zone-fullname {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  color: var(--text-main);
+}
+
+.zone-source {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 7.5px;
+  color: var(--text-muted);
+}
+
+/* Gate Beacon Pins with Simulation Pressure & Queues */
+.gate-badge {
+  background: rgba(1, 15, 28, 0.92);
+  border: 1px solid var(--cyan-primary);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: var(--cyan-bright);
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.gate-badge-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gate-pressure-pill {
+  font-size: 7.5px;
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-weight: 700;
+}
+
+.pill-low { background: rgba(56, 249, 215, 0.2); color: #38f9d7; }
+.pill-normal { background: rgba(0, 240, 255, 0.2); color: #00f0ff; }
+.pill-high { background: rgba(255, 196, 0, 0.25); color: #ffc400; }
+.pill-critical { background: rgba(255, 54, 95, 0.3); color: #ff365f; }
+
+.gate-queue-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #a2c6d8;
+  border-top: 1px dashed rgba(0, 240, 255, 0.2);
+  padding-top: 1px;
+}
+
+.gate-queue-num {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.gate-badge.gate-status-critical {
+  border-color: #ff365f;
+  box-shadow: 0 0 14px rgba(255, 54, 95, 0.6);
+}
+
+.gate-badge.gate-status-high {
+  border-color: #ffc400;
+  box-shadow: 0 0 10px rgba(255, 196, 0, 0.45);
+}
+
+.gate-badge.gate-vip {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.gate-badge.selected {
+  border-color: var(--accent-emerald);
+  color: var(--accent-emerald);
+}
+
+/* ==========================================================================
+   Zone Inspector & Calibration Drawer
+   ========================================================================== */
+
+.zone-inspector-drawer {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  bottom: 24px;
+  width: 360px;
+  background: rgba(12, 16, 22, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.inspector-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inspector-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inspector-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.entity-type-tag {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--junction-yellow);
+}
+
+.conf-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 100px;
+}
+
+.inspector-name {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+.inspector-id {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.inspector-close-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.inspector-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.inspector-body {
+  padding: 16px 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inspector-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #94a3b8;
+}
+
+.card-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.card-row .k {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  color: var(--text-muted);
+  font-size: 9.5px;
+}
+
+.card-row .v {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.card-row .v.uppercase {
+  text-transform: uppercase;
+}
+
+.provenance-disclaimer {
+  margin-top: 4px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 2px solid var(--junction-yellow);
+  font-size: 10px;
+  line-height: 1.4;
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+.camera-ids-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.camera-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9.5px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.occupancy-data-card {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.occ-status-tag {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+}
+
+.status-low {
+  background: rgba(22, 163, 74, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(22, 163, 74, 0.35);
+}
+
+.status-normal {
+  background: rgba(0, 240, 255, 0.12);
+  color: var(--cyan-bright);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.status-high {
+  background: rgba(234, 88, 12, 0.18);
+  color: #fb923c;
+  border: 1px solid rgba(234, 88, 12, 0.4);
+}
+
+.status-critical {
+  background: rgba(220, 38, 38, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(220, 38, 38, 0.45);
+  animation: pulse-dot 1.5s infinite;
+}
+
+.spatial-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(22, 163, 74, 0.12);
+  border: 1px solid rgba(22, 163, 74, 0.3);
+  color: #4ade80;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.06em;
+}
+
+.spatial-readout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.readout-item {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 8px;
+  border-radius: 4px;
+  gap: 2px;
+}
+
+.readout-k {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.readout-v {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 10px;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.dev-calibration-section {
+  border-color: rgba(245, 196, 0, 0.25);
+  background: rgba(245, 196, 0, 0.03);
+}
+
+.dev-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  color: var(--junction-yellow);
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+}
+
+.dev-accordion-header .card-label {
+  color: var(--junction-yellow);
+}
+
+.dev-calib-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(245, 196, 0, 0.2);
+}
+
+.dev-note {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5px;
+  line-height: 1.4;
+  color: #fde68a;
+  background: rgba(245, 196, 0, 0.08);
+  padding: 6px 8px;
+  border-radius: 3px;
+  border-left: 2px solid var(--junction-yellow);
+}
+
+.dev-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.copy-json-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text-main);
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.copy-json-btn:hover {
+  background: var(--junction-yellow-dim);
+  border-color: var(--junction-yellow);
+  color: var(--junction-yellow);
+}
+
+.calib-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.calib-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.calib-field-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5px;
+  color: var(--text-muted);
+}
+
+.calib-field input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  outline: none;
+}
+
+.calib-field input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--junction-yellow);
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--junction-yellow);
+  transition: transform 0.1s;
+}
+
+.calib-field input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* ==========================================================================
+   Situation Alert & Explainable Recommendation Panel
+   ========================================================================== */
+
+.situation-alert-panel {
+  position: absolute;
+  top: 100px;
+  right: 24px;
+  width: 380px;
+  background: rgba(12, 16, 22, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  z-index: 25;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.situation-alert-panel.critical {
+  border-color: #DC2626;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 24px rgba(220, 38, 38, 0.3);
+}
+
+.situation-alert-panel.warning {
+  border-color: #EA580C;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 20px rgba(234, 88, 12, 0.25);
+}
+
+.situation-alert-panel.resolving {
+  border-color: #38f9d7;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 20px rgba(56, 249, 215, 0.25);
+}
+
+.situation-alert-panel.resolved {
+  border-color: #16A34A;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 20px rgba(22, 163, 74, 0.25);
+}
+
+.situation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.situation-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.situation-badge {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+}
+
+.situation-severity-tag {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+}
+
+.severity-critical { background: rgba(220, 38, 38, 0.2); color: #f87171; border: 1px solid #DC2626; }
+.severity-warning { background: rgba(234, 88, 12, 0.2); color: #fb923c; border: 1px solid #EA580C; }
+.severity-info { background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.4); }
+
+.situation-title {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.situation-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.situation-telemetry-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sit-tel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+.tel-k {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.tel-v {
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.situation-action-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.action-box-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--junction-yellow);
+}
+
+.action-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  line-height: 1.35;
+  color: #ffffff;
+  margin: 0;
+}
+
+.action-btn-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.btn-action-ack {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-action-ack:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-action-apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(22, 163, 74, 0.15);
+  border: 1px solid var(--accent-emerald);
+  color: #4ade80;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-action-apply:hover {
+  background: rgba(22, 163, 74, 0.3);
+  box-shadow: 0 0 12px rgba(22, 163, 74, 0.4);
+}
+
+.resolving-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #38f9d7;
+}
+
+.pulse-dot-small {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #38f9d7;
+  box-shadow: 0 0 8px #38f9d7;
+  animation: pulse-dot 1.2s infinite;
+}
+
+/* ==========================================================================
+   Simulation Control Bar (Bottom Center)
+   ========================================================================== */
+
+.sim-control-bar {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12, 16, 22, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 6px 14px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+}
+
+.sim-clock-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+.sim-clock-label {
+  font-size: 9px;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+}
+
+.sim-clock-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 68px;
+}
+
+.sim-clock-speed-badge {
+  font-size: 8.5px;
+  font-weight: 700;
+  background: var(--junction-yellow-dim);
+  color: var(--junction-yellow);
+  border: 1px solid var(--junction-yellow-border);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.sim-scenario-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sim-scenario-label {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+}
+
+.sim-scenario-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.sim-tab-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.sim-tab-btn.active {
+  background: var(--junction-yellow-dim);
+  border-color: var(--junction-yellow);
+  color: var(--junction-yellow);
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(245, 196, 0, 0.25);
+}
+
+.sim-playback-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 12px;
+}
+
+.sim-playback-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-playback-btn:hover {
+  background: var(--junction-yellow-dim);
+  border-color: var(--junction-yellow);
+  color: var(--junction-yellow);
+}
+
+.sim-speed-selector {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.sim-spd-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 9px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.sim-spd-btn.active {
+  border-color: var(--junction-yellow);
+  color: var(--junction-yellow);
+  background: var(--junction-yellow-dim);
+}
+
+/* ==========================================================================
+   Inspector Telemetry & Connected Gates Styles
+   ========================================================================== */
+
+.flow-telemetry-card {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.connected-gates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.connected-gate-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.connected-gate-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(2px);
+}
+
+.gate-item-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gate-item-code {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--cyan-bright);
+}
+
+.gate-item-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 8.5px;
+  color: var(--text-muted);
+}
+
+.gate-item-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gate-pressure-tag {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.gate-queue-val {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.rec-card-highlight {
+  border-color: rgba(245, 196, 0, 0.35);
+  background: rgba(245, 196, 0, 0.06);
+}
+
+.rec-card-highlight.severity-critical {
+  border-color: rgba(220, 38, 38, 0.4);
+  background: rgba(220, 38, 38, 0.08);
+}
+
+.rec-card-title {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.rec-card-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.rec-status-tag {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 7.5px;
+  font-weight: 700;
+  background: var(--junction-yellow-dim);
+  color: var(--junction-yellow);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.text-coral { color: #f87171; }
+.text-amber { color: #fb923c; }
+.text-emerald { color: #4ade80; }
+.text-cyan { color: #00f0ff; }
+.text-cyan-muted { color: #64748b; }
+.text-main { color: #ffffff; }
+.text-muted { color: #94a3b8; }
+.font-bold { font-weight: 700; }
+.flex-center { display: flex; align-items: center; gap: 4px; }
+
+
+
+
