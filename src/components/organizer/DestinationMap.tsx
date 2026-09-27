@@ -228,28 +228,26 @@ export default function DestinationMap({
       {/* OPERATIONAL LAYER TOGGLE BAR */}
       <div className={styles.layerBar}>
         {/* 3D vs 2D MAP ENGINE TOGGLE BUTTONS */}
-        <div style={{ display: "flex", gap: "2px", background: "rgba(15, 23, 42, 0.85)", padding: "2px", borderRadius: "16px", marginRight: "8px", border: "1px solid rgba(255,255,255,0.12)" }}>
+        <div className={styles.engineToggleGroup}>
           <button
-            className={`${styles.layerBtn} ${mapEngine === "MAPLIBRE" ? styles.layerActive : ""}`}
+            className={`${styles.engineBtn} ${mapEngine === "MAPLIBRE" ? styles.engineBtnActive : ""}`}
             onClick={() => {
               setMapEngine("MAPLIBRE");
               setWorldProvider("maplibre-extrusion");
             }}
             title="3D Vector Map"
-            style={{ borderRadius: "12px 0 0 12px", padding: "3px 10px" }}
           >
-            🏙️ 3D Map
+            3D Map
           </button>
 
           <button
-            className={`${styles.layerBtn} ${mapEngine === "LEAFLET" ? styles.layerActive : ""}`}
+            className={`${styles.engineBtn} ${mapEngine === "LEAFLET" ? styles.engineBtnActive : ""}`}
             onClick={() => {
               setMapEngine("LEAFLET");
             }}
             title="2D Operational Map View"
-            style={{ borderRadius: "0 12px 12px 0", padding: "3px 10px" }}
           >
-            🗺️ 2D Map
+            2D Map
           </button>
         </div>
 
@@ -265,7 +263,7 @@ export default function DestinationMap({
               <span
                 className={styles.layerDot}
                 style={{
-                  background: isActive ? "#ffffff" : layer.dotColor,
+                  background: isActive ? "#111111" : layer.dotColor,
                 }}
               />
               {layer.name}
@@ -274,17 +272,11 @@ export default function DestinationMap({
         })}
 
         <button
-          className={`${styles.layerBtn} ${showMatrix ? styles.layerActive : ""}`}
+          className={`${styles.layerBtn} ${styles.matrixBtn} ${showMatrix ? styles.layerActive : ""}`}
           onClick={() => setShowMatrix((prev) => !prev)}
           title="Toggle Simulation Operational Decision Matrix"
-          style={{
-            background: showMatrix ? "#f59e0b" : undefined,
-            color: showMatrix ? "#040714" : undefined,
-            fontWeight: 700,
-            marginLeft: "auto",
-          }}
         >
-          📊 Matrix View
+          <span>📊</span> Matrix View
         </button>
       </div>
 
@@ -350,7 +342,7 @@ export default function DestinationMap({
       </div>
 
       {/* GEOGRAPHIC COMMAND MAP CONTAINER */}
-      <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
+      <div style={{ position: "relative", flex: 1, minHeight: 0, minWidth: 0, width: "100%", height: "100%", overflow: "hidden" }}>
         {mapEngine === "LEAFLET" ? (
           <LeafletCommandMap
             resources={resources}

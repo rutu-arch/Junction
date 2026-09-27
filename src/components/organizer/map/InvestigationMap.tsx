@@ -71,34 +71,34 @@ const BUILDING_BASE: maplibregl.ExpressionSpecification = [
 ];
 
 const MAP_COLORS = {
-  background: "#050816",
-  land: "#0a1024",
-  landDetail: "#111a38",
-  water: "#0e2f5c",
-  waterway: "#3f73ff",
-  roadMajor: "#1e5aa7",
-  roadMinor: "#143b65",
-  roadService: "#0d2945",
-  roadCasing: "#050b14",
-  boundary: "#3f73ff",
-  boundaryAccent: "#62d3ff",
-  building: "#131d3d",
-  buildingBright: "#20406e",
-  text: "#f4f6ff",
-  textAccent: "#62d3ff",
-  textHalo: "#050816",
+  background: "#181b22",
+  land: "#1e222b",
+  landDetail: "#252a36",
+  water: "#1b2d42",
+  waterway: "#38bdf8",
+  roadMajor: "#3b82f6",
+  roadMinor: "#374151",
+  roadService: "#2d3748",
+  roadCasing: "#14171e",
+  boundary: "#60a5fa",
+  boundaryAccent: "#38bdf8",
+  building: "#262c3a",
+  buildingBright: "#333d50",
+  text: "#f8fafc",
+  textAccent: "#38bdf8",
+  textHalo: "#181b22",
 };
 
 // Note: All operational routes and case geometries are strictly road-network constrained
 // via getRoadSnappedPath() and buildRoadConstrainedPath() from osmRoadNetwork.ts.
 const BUILDING_COLOR: maplibregl.ExpressionSpecification = [
   "interpolate", ["linear"], BUILDING_HEIGHT,
-  0, "#0f182c",
-  15, "#152744",
-  40, "#1d3b66",
-  90, "#265288",
-  200, "#3169a8",
-  400, "#4687d0",
+  0, "#222734",
+  15, "#2a3142",
+  40, "#333c50",
+  90, "#3e4a64",
+  200, "#4d5c7c",
+  400, "#5e7097",
 ];
 
 const BUILDING_OPACITY: maplibregl.ExpressionSpecification = [
@@ -1145,26 +1145,24 @@ function WeatherMapOverlay({
         top: 12,
         right: 12,
         zIndex: 20,
-        background: "rgba(4, 7, 20, 0.82)",
+        background: "rgba(255, 255, 255, 0.96)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         border: weatherScenarioActive
-          ? "1px solid rgba(167, 139, 250, 0.55)"
-          : "1px solid rgba(96, 165, 250, 0.30)",
-        borderRadius: 10,
-        padding: "10px 13px",
+          ? "1.5px solid #a78bfa"
+          : "1px solid #e2e8f0",
+        borderRadius: 8,
+        padding: "10px 14px",
         minWidth: 180,
-        maxWidth: 210,
+        maxWidth: 215,
         fontFamily: "'Inter', 'Outfit', system-ui, sans-serif",
-        boxShadow: weatherScenarioActive
-          ? "0 0 18px rgba(167,139,250,0.18)"
-          : "0 0 14px rgba(0,0,0,0.55)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
         pointerEvents: "none",
       }}
     >
       {/* Header row */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
-        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", color: "rgba(148,163,184,0.85)", textTransform: "uppercase", flex: 1 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: "#64748b", textTransform: "uppercase", flex: 1 }}>
           {weatherScenarioActive ? "WEATHER TWIN" : "LIVE WEATHER"}
         </span>
         <span
@@ -1173,9 +1171,9 @@ function WeatherMapOverlay({
             fontWeight: 800,
             letterSpacing: "0.10em",
             color: sourceBadgeColor,
-            background: `${sourceBadgeColor}22`,
-            border: `1px solid ${sourceBadgeColor}55`,
-            borderRadius: 4,
+            background: `${sourceBadgeColor}15`,
+            border: `1px solid ${sourceBadgeColor}44`,
+            borderRadius: 3,
             padding: "1px 5px",
           }}
         >
@@ -1185,8 +1183,8 @@ function WeatherMapOverlay({
 
       {/* Condition icon + label */}
       <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 8 }}>
-        <span style={{ fontSize: 22, lineHeight: 1 }}>{icon}</span>
-        <span style={{ fontSize: 11, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.3, flex: 1 }}>
+        <span style={{ fontSize: 20, lineHeight: 1 }}>{icon}</span>
+        <span style={{ fontSize: 11.5, fontWeight: 700, color: "#0f172a", lineHeight: 1.3, flex: 1 }}>
           {weatherState.condition}
         </span>
       </div>
@@ -1204,13 +1202,13 @@ function WeatherMapOverlay({
       </div>
 
       {/* Footer */}
-      <div style={{ marginTop: 7, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 8, color: "rgba(148,163,184,0.60)" }}>Updated {updatedStr}</span>
+      <div style={{ marginTop: 7, borderTop: "1px solid #e2e8f0", paddingTop: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 8, color: "#94a3b8" }}>Updated {updatedStr}</span>
         {isDegraded && !weatherScenarioActive && (
-          <span style={{ fontSize: 8, color: "#f59e0b" }}>⚠ Fallback</span>
+          <span style={{ fontSize: 8, color: "#d97706", fontWeight: 700 }}>⚠ Fallback</span>
         )}
         {weatherScenarioActive && (
-          <span style={{ fontSize: 8, color: "#a78bfa" }}>What-If mode</span>
+          <span style={{ fontSize: 8, color: "#7c3aed", fontWeight: 700 }}>What-If mode</span>
         )}
       </div>
     </div>
@@ -1220,8 +1218,8 @@ function WeatherMapOverlay({
 function MetricCell({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-      <span style={{ fontSize: 8, color: "rgba(148,163,184,0.65)", letterSpacing: "0.07em", textTransform: "uppercase" }}>{label}</span>
-      <span style={{ fontSize: 11, fontWeight: 700, color: highlight ? "#60a5fa" : "#f1f5f9", letterSpacing: "0.01em" }}>{value}</span>
+      <span style={{ fontSize: 8, color: "#64748b", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>{label}</span>
+      <span style={{ fontSize: 11.5, fontWeight: 800, color: highlight ? "#2563eb" : "#0f172a", letterSpacing: "0.01em" }}>{value}</span>
     </div>
   );
 }
@@ -1380,7 +1378,17 @@ export default function InvestigationMap({
     map.on("mouseleave", "secret-cases", onLeave);
     map.on("mouseleave", "secret-zone-fill", onLeave);
 
+    const ro = new ResizeObserver(() => {
+      if (mapRef.current) {
+        mapRef.current.resize();
+      }
+    });
+    if (hostRef.current) {
+      ro.observe(hostRef.current);
+    }
+
     return () => {
+      ro.disconnect();
       map.remove();
       mapRef.current = null;
       threeOverlayRef.current = null;

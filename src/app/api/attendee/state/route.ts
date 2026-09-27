@@ -10,6 +10,7 @@ import { SCENARIOS } from "@/data/mockScenarios";
 import { ScenarioId } from "@/types";
 import { getHotels, getRestaurants, getAlerts } from "@/services/mockDataService";
 import { getAttendeeRoutes } from "@/data/mockRoutes";
+import { scenarioStore } from "@/services/scenarioStore";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -26,12 +27,17 @@ export async function OPTIONS() {
 
 export async function GET() {
   try {
-    const activeScenarioId: ScenarioId = "NORMAL" as ScenarioId;
-    const isRec1Approved: boolean = false;
+    const activeScenarioId: ScenarioId = scenarioStore.getActiveScenario();
+    const isRec1Approved: boolean = scenarioStore.isRec1Approved();
+    const scenarioVersion = scenarioStore.getScenarioVersion();
+    const approvedRecommendations = scenarioStore.getApprovedRecommendations();
+    const latestApproved = scenarioStore.getLatestApprovedRecommendation();
 
-    // Build attendee-facing advisory message
+    // Build attendee-facing advisory message directly from active approved recommendation or scenario
     let advisoryMessage = "Normal matchday flow. All corridors operating smoothly.";
-    if (activeScenarioId === ("POST_EVENT_SURGE" as ScenarioId)) {
+    if (latestApproved) {
+      advisoryMessage = latestApproved.message;
+    } else if (activeScenarioId === ("POST_EVENT_SURGE" as ScenarioId)) {
       advisoryMessage = "Post-match exit surge active: Churchgate at heavy crowd pressure. Dadar route recommended with dedicated shuttle connection.";
     } else if (activeScenarioId === ("TRANSPORT_DISRUPTION" as ScenarioId)) {
       advisoryMessage = "Western Railway disruption reported. Dadar or CSMT alternate corridors active.";
@@ -40,10 +46,10 @@ export async function GET() {
     } else if (activeScenarioId === ("EVENT_DELAY" as ScenarioId)) {
       advisoryMessage = "Match start delayed by +30m. Entry gates remain open for relaxed arrival.";
     } else if (isRec1Approved) {
-      advisoryMessage = "Organizer recommendation active: Visitors redirected toward Dadar to reduce Churchgate choke point.";
+      advisoryMessage = "Churchgate pressure is rising. Dadar Station offers a better journey with only 8 minutes extra travel time.";
     }
 
-    // 2. Format sanitized attendee event
+    // Format sanitized attendee event
     const event = {
       id: MOCK_EVENT.id,
       name: MOCK_EVENT.name,
@@ -58,15 +64,15 @@ export async function GET() {
       allocatedGate: "Gate 3 (South)",
     };
 
-    // 3. Format sanitized routes
+    // Format sanitized routes
     const routes = getAttendeeRoutes(activeScenarioId, isRec1Approved);
 
-    // 4. Format sanitized hotels & restaurants
+    // Format sanitized hotels & restaurants
     const hotels = getHotels(activeScenarioId);
     const restaurants = getRestaurants(activeScenarioId);
     const alerts = getAlerts(activeScenarioId);
 
-    // 5. Format public venue information
+    // Format public venue information
     const venue = {
       name: "Wankhede Stadium",
       address: "Vinoo Mankad Rd, Churchgate, Mumbai, Maharashtra 400020",
@@ -83,7 +89,7 @@ export async function GET() {
     return NextResponse.json(
       {
         success: true,
-        version: 1,
+        version: scenarioVersion,
         timestamp: new Date().toISOString(),
         event,
         scenario: {
@@ -93,6 +99,7 @@ export async function GET() {
           isRec1Approved,
           advisoryMessage,
         },
+        approvedRecommendations,
         routes,
         hotels,
         restaurants,

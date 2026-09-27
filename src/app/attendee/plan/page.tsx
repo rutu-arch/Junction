@@ -6,7 +6,14 @@ import { AttendeeRoute } from "@/types";
 import styles from "./plan.module.css";
 
 export default function PlanPage() {
-  const { activeScenario, isRecommendationApproved, selectAttendeeRoute, attendeeSelectedRouteId } = useApp();
+  const {
+    activeScenario,
+    hasAttendeeRecommendation,
+    attendeeRecommendationMessage,
+    isRecommendationApproved,
+    selectAttendeeRoute,
+    attendeeSelectedRouteId,
+  } = useApp();
   const rec1Approved = isRecommendationApproved("REC1");
   const routes = getAttendeeRoutes(activeScenario, rec1Approved);
 
@@ -129,7 +136,7 @@ export default function PlanPage() {
           {showAdvanced ? "▲ Hide Advanced Options" : "▼ Advanced Options"}
         </button>
 
-        {showAdvanced && rec1Approved && (
+        {showAdvanced && hasAttendeeRecommendation && (
           <div
             className={styles.orgBanner}
             style={{ marginTop: 10, padding: 12, borderRadius: "var(--radius-sm)" }}
@@ -138,7 +145,7 @@ export default function PlanPage() {
             <div>
               <span className={styles.orgBannerTitle}>Organizer Recommendation Active</span>
               <p className={styles.orgBannerMsg}>
-                Dadar Station route is recommended due to rising Churchgate pressure.
+                {attendeeRecommendationMessage}
               </p>
             </div>
           </div>

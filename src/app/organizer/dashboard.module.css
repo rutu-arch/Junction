@@ -1,196 +1,248 @@
 /* ============================================================
    JUNCTION — Operations Room (Command Center)
-   Swiss editorial layout. Strong typography. Clear hierarchy.
+   Swiss editorial command layout. Spacious hierarchy.
    ============================================================ */
 
 .page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px 28px 56px;
+  gap: 36px;
+  padding: 24px 32px 64px;
   background: var(--paper);
-  min-height: calc(100vh - 54px);
-  overflow-y: auto;
+  min-height: calc(100vh - var(--header-height));
 }
 
-/* ── 1. PIPELINE ─────────────────────────────────────────── */
-.pipeline {
-  display: flex;
-  align-items: center;
-  background: #111111;
-  border-radius: var(--radius-sm);
-  border: 1px solid #222222;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  overflow-x: auto;
-  gap: 0;
-}
-
-.pipeNode {
+/* ── 1. PRIMARY OPERATIONAL SITUATION HERO ─────────────────── */
+.heroSection {
+  min-height: calc(100vh - var(--header-height) - 48px);
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 12px 18px;
-  flex: 1;
-  min-width: 120px;
-  border-right: 1px solid #242424;
-  text-decoration: none;
-  color: inherit;
-  transition: background var(--t-fast);
-  cursor: pointer;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.pipeNode:last-child {
-  border-right: none;
-}
-
-.pipeNode:hover {
-  background: #1a1a1a;
-}
-
-.pipeNodeActive {
-  background: rgba(245, 196, 0, 0.05);
-}
-
-.pipeArrow {
-  color: #444;
-  font-size: 14px;
-  padding: 0 2px;
-  flex-shrink: 0;
-  user-select: none;
-}
-
-.pipeStage {
-  font-family: var(--font-display);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--junction-yellow);
-}
-
-.pipeValue {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-}
-
-/* ── 2. CURRENT SITUATION HERO ─────────────────────────── */
-.situationConsole {
+.heroCard {
   background: var(--white);
-  border: 1.5px solid var(--ink);
-  box-shadow: 3px 3px 0px rgba(0,0,0,0.08);
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 0;
-}
-
-@media (max-width: 960px) {
-  .situationConsole {
-    grid-template-columns: 1fr;
-  }
-}
-
-.situationMain {
-  padding: 24px 28px;
+  border: 1px solid var(--neutral-dark);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  border-right: 1px solid var(--neutral);
+  flex: 1;
 }
 
-@media (max-width: 960px) {
-  .situationMain {
-    border-right: none;
-    border-bottom: 1px solid var(--neutral);
-  }
-}
-
-.situationEyebrow {
+.heroHeader {
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--neutral);
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #FAF9F5;
+}
+
+.heroMetaLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
-.scenarioPill {
+.scenarioBadge {
   font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   background: var(--yellow);
   color: var(--ink);
-  padding: 3px 8px;
-  border-radius: 2px;
+  padding: 3px 9px;
+  border-radius: 4px;
 }
 
-.eventContextTag {
+.eventContextBadge {
   font-family: var(--font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: var(--ink-faint);
+  color: var(--ink-muted);
   text-transform: uppercase;
 }
 
-.situationHeadline {
+.weatherTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--white);
+  border: 1px solid var(--neutral-dark);
+  padding: 3px 10px;
   font-family: var(--font-display);
-  font-size: clamp(22px, 2.4vw, 30px);
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--ink);
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  margin: 0;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all var(--t-fast);
 }
 
-.situationDriversList {
+.weatherTag:hover {
+  border-color: var(--ink);
+}
+
+/* Core Hero Grid */
+.heroGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding-top: 14px;
-  border-top: 1px solid var(--neutral);
+  grid-template-columns: 1.45fr 1fr;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
 }
 
-@media (max-width: 680px) {
-  .situationDriversList {
+@media (max-width: 1024px) {
+  .heroGrid {
     grid-template-columns: 1fr;
   }
 }
 
-.driverItem {
+.heroMainCol {
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 14px;
+  border-right: 1px solid var(--neutral);
+}
+
+@media (max-width: 1024px) {
+  .heroMainCol {
+    border-right: none;
+    border-bottom: 1px solid var(--neutral);
+  }
+}
+
+.headlineBlock {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.driverLabel {
+.locationSupertitle {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.situationTitle {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.3vw, 30px);
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+/* Contextual Operational Intelligence Briefing */
+.contextBriefing {
+  background: #FAF9F5;
+  border: 1px solid var(--neutral);
+  border-left: 3px solid var(--yellow);
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.contextBriefingHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.contextBriefingTag {
   font-family: var(--font-display);
   font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.contextBriefingMeta {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.contextBriefingText {
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ink-light);
+  margin: 0;
+}
+
+.telemetryRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 10px 0;
+  border-top: 1px solid var(--neutral);
+  border-bottom: 1px solid var(--neutral);
+}
+
+@media (max-width: 720px) {
+  .telemetryRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.telemetryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.telemetryLabel {
+  font-family: var(--font-display);
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
 
-.driverVal {
+.telemetryValue {
   font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
   color: var(--ink);
+  letter-spacing: -0.01em;
 }
 
-.driverDesc {
-  font-family: var(--font-body);
+.unit {
   font-size: 11px;
+  font-weight: 600;
   color: var(--ink-muted);
 }
 
-/* Wankhede gate compact context bar */
-.gateContextBar {
-  border-top: 1px solid var(--neutral);
-  padding-top: 12px;
+.telemetrySub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--ink-muted);
+  line-height: 1.3;
+}
+
+/* Gate Context */
+.gateContextSection {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -198,89 +250,122 @@
 
 .gateContextLabel {
   font-family: var(--font-display);
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
 
-.gateContextRows {
+.gateContextGrid {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
-.gateContextRow {
+.gateCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #FAF9F5;
+  border: 1px solid var(--neutral);
+  padding: 8px 14px;
+  border-radius: 6px;
+  min-width: 140px;
+}
+
+.gateCardTop {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--paper);
-  border: 1px solid var(--neutral-dark);
-  padding: 6px 12px;
-  border-radius: var(--radius-xs);
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.gateContextName {
+.gateName {
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--ink);
-  min-width: 72px;
 }
 
-.gateContextPressure {
+.gatePressure {
   font-family: var(--font-display);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 800;
 }
 
-/* Right side: pressure number + forward indicator */
-.situationMetricsSide {
-  padding: 24px;
+/* Right Gauge Column */
+.heroGaugeCol {
+  padding: 28px 24px;
   background: #FAF9F5;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 20px;
+  justify-content: center;
+  align-items: stretch;
 }
 
-.pressureGaugeRow {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.pressureValBig {
-  font-family: var(--font-display);
-  font-size: 54px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.pressureStatusMeta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.forecastPeakLine {
-  font-family: var(--font-display);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ink);
+.gaugeBox {
   background: var(--white);
   border: 1px solid var(--neutral-dark);
-  padding: 8px 12px;
+  border-radius: 8px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.gaugeHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
 }
 
-.predictionsLink {
+.gaugeTitle {
+  font-family: var(--font-display);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.gaugeNumber {
+  font-family: var(--font-display);
+  font-size: clamp(64px, 5.5vw, 84px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin: 4px 0;
+}
+
+.forecastBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: #FAF9F5;
+  border: 1px solid var(--neutral);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.forecastLabel {
+  color: var(--ink-muted);
+}
+
+.forecastValue {
+  font-weight: 800;
+}
+
+.forecastLink {
   font-family: var(--font-display);
   font-size: 11px;
   font-weight: 700;
@@ -290,26 +375,26 @@
   text-transform: uppercase;
   border-bottom: 1px solid var(--neutral);
   padding-bottom: 2px;
-  align-self: flex-end;
   transition: color var(--t-fast);
 }
 
-.predictionsLink:hover {
+.forecastLink:hover {
   color: var(--ink);
 }
 
-/* Redistribution banner */
+/* Closed Loop / Redistribution Banner */
 .closedLoopBanner {
   background: var(--green-bg);
-  border: 1px solid rgba(16,185,129,0.4);
-  padding: 12px 20px;
+  border-top: 1px solid rgba(16, 185, 129, 0.3);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 10px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   color: var(--green);
 }
@@ -328,21 +413,20 @@
   color: var(--ink);
 }
 
-/* ── 3. ACTION STRIP ────────────────────────────────────── */
-.actionStrip {
-  background: var(--ink);
+/* Action Strip */
+.heroActionStrip {
+  background: #18181B;
   color: var(--white);
-  border: 1.5px solid var(--ink);
-  box-shadow: 3px 3px 0px rgba(0,0,0,0.12);
+  border-top: 1px solid #27272A;
+  padding: 14px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
   gap: 20px;
   flex-wrap: wrap;
 }
 
-.actionStripLeft {
+.actionLeft {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -350,82 +434,109 @@
   min-width: 240px;
 }
 
-.actionStepBadge {
+.actionBadge {
   background: var(--yellow);
   color: var(--ink);
   font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 4px 8px;
-  border-radius: 2px;
+  border-radius: 3px;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-.actionTextGroup {
+.actionContent {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.actionTitle {
+.actionHeadline {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 700;
   color: var(--white);
   letter-spacing: -0.01em;
 }
 
-.actionSubtitle {
+.actionImpact {
   font-family: var(--font-body);
-  font-size: 11px;
-  color: rgba(255,255,255,0.6);
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.actionStripRight {
+.actionRight {
   display: flex;
   align-items: center;
   gap: 16px;
   flex-shrink: 0;
 }
 
-.actionSecondaryLink {
+.actionSimLink {
   font-family: var(--font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.6);
   text-decoration: none;
   text-transform: uppercase;
   transition: color var(--t-fast);
   white-space: nowrap;
 }
 
-.actionSecondaryLink:hover {
+.actionSimLink:hover {
   color: var(--yellow);
 }
 
-/* ── 4. SPATIAL COMMAND MAP ─────────────────────────────── */
+/* Scroll Invitation */
+.scrollInvitation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 0 8px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  user-select: none;
+}
+
+.scrollIcon {
+  animation: bounce-subtle 2s infinite ease-in-out;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+
+/* ── 2. SPATIAL COMMAND MAP ─────────────────────────────── */
 .spatialSection {
   background: var(--white);
-  border: 1px solid var(--ink);
-  box-shadow: 2px 2px 0px rgba(0,0,0,0.06);
+  border: 1px solid var(--neutral-dark);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  height: 480px;
-  min-height: 420px;
+  height: 520px;
+  min-height: 440px;
+  overflow: hidden;
 }
 
 .spatialHud {
-  padding: 10px 16px;
-  background: var(--ink);
+  padding: 12px 20px;
+  background: #18181B;
   color: var(--white);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #222222;
+  border-bottom: 1px solid #27272A;
   flex-shrink: 0;
 }
 
@@ -449,9 +560,10 @@
   font-size: 9px;
   font-weight: 700;
   color: var(--yellow);
-  background: rgba(245,196,0,0.15);
+  background: rgba(245, 196, 0, 0.15);
   padding: 2px 6px;
   letter-spacing: 0.08em;
+  border-radius: 2px;
 }
 
 .hudBtn {
@@ -461,8 +573,9 @@
   letter-spacing: 0.05em;
   background: transparent;
   color: var(--yellow);
-  border: 1px solid rgba(245,196,0,0.3);
-  padding: 4px 10px;
+  border: 1px solid rgba(245, 196, 0, 0.4);
+  padding: 5px 12px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all var(--t-fast);
 }
@@ -479,27 +592,29 @@
   width: 100%;
 }
 
-/* ── 5. LIVE SIGNAL HEALTH ──────────────────────────────── */
-.signalStrip {
+/* ── 3. LIVE SIGNAL HEALTH ──────────────────────────────── */
+.signalSection {
   background: var(--white);
   border: 1px solid var(--neutral-dark);
-  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  padding: 18px 24px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
-.signalStripHeader {
+.signalHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--neutral);
-  padding-bottom: 8px;
+  padding-bottom: 10px;
 }
 
-.signalStripTitle {
+.signalTitle {
   font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -509,7 +624,7 @@
 .signalViewAllLink {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-family: var(--font-display);
   font-size: 11px;
   font-weight: 700;
@@ -526,14 +641,22 @@
 
 .signalRows {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0;
   border: 1px solid var(--neutral);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 960px) {
   .signalRows {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .signalRows {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -541,8 +664,9 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-right: 1px solid var(--neutral);
+  background: #FAF9F5;
 }
 
 .signalRow:last-child {
@@ -551,14 +675,14 @@
 
 .signalName {
   font-family: var(--font-display);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--ink-muted);
 }
 
 .signalValue {
   font-family: var(--font-display);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 800;
   color: var(--ink);
 }
@@ -583,14 +707,16 @@
   flex-shrink: 0;
 }
 
-/* ── 6. VISUAL VERIFICATION ─────────────────────────────── */
+/* ── 4. VISUAL VERIFICATION ─────────────────────────────── */
 .verificationSection {
   background: var(--white);
   border: 1px solid var(--neutral-dark);
-  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  padding: 18px 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .verificationHeader {
@@ -598,12 +724,12 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--neutral);
-  padding-bottom: 8px;
+  padding-bottom: 10px;
 }
 
 .verificationTitle {
   font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -628,16 +754,16 @@
 .verificationGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .verificationGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 580px) {
   .verificationGrid {
     grid-template-columns: 1fr;
   }
@@ -649,12 +775,13 @@
   gap: 0;
   border: 1px solid var(--neutral-dark);
   background: var(--paper);
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .verificationTileHeader {
-  padding: 6px 10px;
-  background: var(--ink);
+  padding: 7px 12px;
+  background: #18181B;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -663,7 +790,7 @@
 
 .verificationZoneName {
   font-family: var(--font-display);
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -676,7 +803,7 @@
   font-family: var(--font-display);
   font-size: 9px;
   font-weight: 600;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.5);
   white-space: nowrap;
 }
 
@@ -698,7 +825,7 @@
 .resourceModalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(17,17,17,0.7);
+  background: rgba(17, 17, 17, 0.7);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -712,5 +839,7 @@
   max-width: 440px;
   background: var(--white);
   border: 1px solid var(--ink);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }

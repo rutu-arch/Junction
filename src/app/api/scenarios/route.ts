@@ -10,10 +10,7 @@ import { getResources, getHotels, getRestaurants, getAlerts } from "@/services/m
 import { MOCK_HOTELS_BASE } from "@/data/mockHotels";
 import { recommendationLifecycleEngine } from "@/services/recommendationLifecycleEngine";
 
-// Global single source of truth for active scenario across Web & Mobile
-let currentActiveScenario: ScenarioId = "NORMAL";
-let isRec1ApprovedState: boolean = false;
-let scenarioVersion: number = 1;
+import { scenarioStore } from "@/services/scenarioStore";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -29,6 +26,10 @@ export async function OPTIONS() {
 }
 
 export async function GET() {
+  const currentActiveScenario = scenarioStore.getActiveScenario();
+  const isRec1ApprovedState = scenarioStore.isRec1Approved();
+  const scenarioVersion = scenarioStore.getScenarioVersion();
+
   const resources = getResources(currentActiveScenario);
   const fusedZones: ZoneState[] = OPERATIONAL_ZONES.map((zoneDef) =>
     fuseZoneState(zoneDef, resources, MOCK_HOTELS_BASE, currentActiveScenario)
@@ -65,11 +66,13 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    let versionChanged = false;
 
-    if (typeof body.isRec1Approved === "boolean" && body.isRec1Approved !== isRec1ApprovedState) {
-      isRec1ApprovedState = body.isRec1Approved;
-      versionChanged = true;
+    if (typeof body.isRec1Approved === "boolean") {
+      scenarioStore.setRec1Approved(body.isRec1Approved);
+      if (!body.isRec1Approved) {
+        const { persistenceService } = await import("@/services/persistenceService");
+        persistenceService.clearInterventions();
+      }
     }
 
     if (body.scenarioId) {
@@ -80,15 +83,14 @@ export async function POST(req: NextRequest) {
           { status: 400, headers: CORS_HEADERS }
         );
       }
-      if (scenarioId !== currentActiveScenario) {
-        currentActiveScenario = scenarioId;
-        versionChanged = true;
-      }
+      scenarioStore.setActiveScenario(scenarioId);
+      const { persistenceService } = await import("@/services/persistenceService");
+      persistenceService.clearInterventions();
     }
 
-    if (versionChanged) {
-      scenarioVersion++;
-    }
+    const currentActiveScenario = scenarioStore.getActiveScenario();
+    const isRec1ApprovedState = scenarioStore.isRec1Approved();
+    const scenarioVersion = scenarioStore.getScenarioVersion();
 
     const resources = getResources(currentActiveScenario);
     const fusedZones: ZoneState[] = OPERATIONAL_ZONES.map((zoneDef) =>

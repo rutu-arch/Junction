@@ -9,8 +9,8 @@
 .sidebar {
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);
-  background: #111111;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1e222a;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -23,8 +23,8 @@
   min-width: 64px;
 }
 .sidebarHeader {
-  padding: 18px 16px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -32,7 +32,7 @@
 }
 .sidebarLogo {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: 0.14em;
   color: var(--white);
@@ -43,14 +43,14 @@
   font-size: 12px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.6);
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--radius-xs);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   transition: all var(--t-fast);
   flex-shrink: 0;
@@ -59,24 +59,24 @@
   color: var(--yellow);
   border-color: var(--yellow);
 }
-.sidebarNav { flex: 1; padding: 16px 0; overflow-y: auto; }
-.navGroup { margin-bottom: 8px; }
+.sidebarNav { flex: 1; padding: 10px 0; overflow-y: auto; }
+.navGroup { margin-bottom: 4px; }
 .navGroupLabel {
   display: block;
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
-  padding: 10px 20px 6px;
+  color: rgba(255, 255, 255, 0.35);
+  padding: 6px 18px 2px;
   white-space: nowrap;
 }
 .navItem {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 20px;
-  font-size: 12.5px;
+  gap: 9px;
+  padding: 6.5px 18px;
+  font-size: 12px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.7);
   border-radius: 0;
@@ -87,11 +87,11 @@
 .navItem:hover { color: var(--white); background: rgba(255, 255, 255, 0.06); }
 .navItemCollapsed {
   justify-content: center;
-  padding: 11px 0;
+  padding: 8px 0;
   gap: 0;
 }
 .navItemCollapsed .navIcon {
-  font-size: 16px;
+  font-size: 15px;
   width: auto;
 }
 .navItemActive {
@@ -107,15 +107,15 @@
   background: #111111;
   border-radius: 0 2px 2px 0;
 }
-.navIcon { font-size: 14px; width: 18px; text-align: center; }
+.navIcon { font-size: 13.5px; width: 17px; text-align: center; }
 .navLabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .sidebarFooter {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   transition: padding var(--t-med);
 }
 .footerCollapsedWrap {
@@ -150,6 +150,10 @@
   outline: none;
   cursor: pointer;
 }
+.scenarioSelect option {
+  background-color: #1e222a;
+  color: #ffffff;
+}
 .simulatedEnv {
   display: flex;
   align-items: center;
@@ -174,10 +178,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 28px;
   height: var(--header-height);
-  background: #111111;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1e222a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
   gap: 16px;
 }
@@ -270,4 +274,12 @@
 .logoutBtn:hover {
   background: rgba(239, 68, 68, 0.15);
 }
-.content { flex: 1; overflow-y: auto; }
+.content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}

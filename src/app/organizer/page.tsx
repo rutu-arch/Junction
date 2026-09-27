@@ -10,7 +10,7 @@ import ResourcePanel from "@/components/organizer/ResourcePanel";
 import ActionDrawer from "@/components/organizer/ActionDrawer";
 import ZoneDrawer from "@/components/organizer/ZoneDrawer";
 import SimulationDrawer from "@/components/organizer/SimulationDrawer";
-import { Zap, Video } from "lucide-react";
+import { Zap, Video, ChevronDown } from "lucide-react";
 import { getPressureColor, getPressureLabel } from "@/components/ui/PressureIndicator";
 import styles from "./dashboard.module.css";
 
@@ -24,7 +24,6 @@ export default function OrganizerDashboard() {
     resources,
     redistributionApplied,
     redistributionImpact,
-    latestObservations,
     zones,
     approveRecommendation,
     rejectRecommendation,
@@ -107,65 +106,19 @@ export default function OrganizerDashboard() {
 
   return (
     <div className={styles.page}>
-
-      {/* ── 1. PIPELINE ─────────────────────────────────────────────────────── */}
-      <nav className={styles.pipeline} aria-label="Junction operational pipeline">
-        <Link href="/organizer/cctv-demo" className={styles.pipeNode} title="CCTV & sensor signals">
-          <span className={styles.pipeStage}>01 · OBSERVE</span>
-          <span className={styles.pipeValue}>4 Signals</span>
-        </Link>
-        <span className={styles.pipeArrow}>→</span>
-
-        <div className={`${styles.pipeNode} ${styles.pipeNodeActive}`}>
-          <span className={styles.pipeStage} style={{ color: "var(--yellow)" }}>02 · ASSESS</span>
-          <span className={styles.pipeValue}>{heroZone?.pressure ?? "—"}%</span>
-        </div>
-        <span className={styles.pipeArrow}>→</span>
-
-        <Link href="/organizer/predictions" className={styles.pipeNode} title="Forward demand forecast">
-          <span className={styles.pipeStage}>03 · PREDICT</span>
-          <span className={styles.pipeValue}>+15m: {heroZone?.predictedPressure15 ?? "—"}%</span>
-        </Link>
-        <span className={styles.pipeArrow}>→</span>
-
-        <Link href="/organizer/simulation" className={styles.pipeNode} title="Simulate interventions">
-          <span className={styles.pipeStage}>04 · SIMULATE</span>
-          <span className={styles.pipeValue}>Ready</span>
-        </Link>
-        <span className={styles.pipeArrow}>→</span>
-
-        <Link href="/organizer/recommendations" className={styles.pipeNode} title="Action recommendations">
-          <span className={styles.pipeStage}>05 · DECIDE</span>
-          <span className={styles.pipeValue} style={{ color: isTopRecApproved ? "var(--green)" : "var(--yellow)" }}>
-            {isTopRecApproved ? "Approved" : "1 Pending"}
-          </span>
-        </Link>
-      </nav>
-
-      {/* ── 2. CURRENT SITUATION HERO ────────────────────────────────────────── */}
-      <div className={styles.situationConsole}>
-        <div className={styles.situationMain}>
-          {/* Eyebrow */}
-          <div className={styles.situationEyebrow}>
-            <span className={styles.scenarioPill}>{scenarioLabel}</span>
-            <span className={styles.eventContextTag}>WANKHEDE STADIUM · 33,000 SPECTATORS</span>
+      {/* ── 1. PRIMARY OPERATIONAL SITUATION HERO (Dominant First-Screen Command Center) ── */}
+      <section className={styles.heroSection} aria-label="Operational Command Hero">
+        <div className={styles.heroCard}>
+          {/* Eyebrow / Context Row */}
+          <div className={styles.heroHeader}>
+            <div className={styles.heroMetaLeft}>
+              <span className={styles.scenarioBadge}>{scenarioLabel}</span>
+              <span className={styles.eventContextBadge}>WANKHEDE STADIUM · 33,000 SPECTATORS</span>
+            </div>
             {weatherState && (
               <Link
                 href="/organizer/simulation?scenario=weather"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  background: "var(--paper)",
-                  border: "1px solid var(--neutral-dark)",
-                  padding: "2px 8px",
-                  fontFamily: "var(--font-display)",
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: "var(--ink)",
-                  textDecoration: "none",
-                  marginLeft: "auto",
-                }}
+                className={styles.weatherTag}
                 title="Live Weather Context · Click to test in What-If Simulator"
               >
                 <span>🌧️ {weatherState.condition} · {weatherState.temperature}°C · {weatherState.rainfall} mm/h</span>
@@ -184,145 +137,176 @@ export default function OrganizerDashboard() {
             )}
           </div>
 
-          {/* Headline: zone-specific */}
-          <h1 className={styles.situationHeadline}>
-            {heroLocationLine}
-            <br />
-            <span style={{ color: heroColor }}>PRESSURE IS {heroStatusLabel}</span>
-          </h1>
+          {/* Main Hero Body: Asymmetric Grid */}
+          <div className={styles.heroGrid}>
+            {/* Left Column: Location, Headline, Intelligence Assessment, Telemetry, and Gate Details */}
+            <div className={styles.heroMainCol}>
+              <div className={styles.headlineBlock}>
+                <span className={styles.locationSupertitle}>{heroLocationLine}</span>
+                <h1 className={styles.situationTitle}>
+                  PRESSURE IS <span style={{ color: heroColor }}>{heroStatusLabel}</span>
+                </h1>
+              </div>
 
-          {/* Three key metrics — no predictions, just now */}
-          <div className={styles.situationDriversList}>
-            <div className={styles.driverItem}>
-              <span className={styles.driverLabel}>INFLOW VELOCITY</span>
-              <span className={styles.driverVal}>+{heroZone?.inflowRate ?? 42} people/min</span>
-              <span className={styles.driverDesc}>Egress flowing toward Western Railway</span>
+              {/* Compact Contextual Intelligence Assessment */}
+              <div className={styles.contextBriefing}>
+                <div className={styles.contextBriefingHeader}>
+                  <span className={styles.contextBriefingTag}>OPERATIONAL ASSESSMENT</span>
+                  <span className={styles.contextBriefingMeta}>Egress Surge Telemetry</span>
+                </div>
+                <p className={styles.contextBriefingText}>
+                  High-velocity concourse discharge concentrated at Gate 2 with +{heroZone?.inflowRate ?? 42} pax/min toward Western Railway.
+                  Downstream clearance buffer at Churchgate is operating at threshold capacity. Corridor metering active to stabilize egress velocity and redirect flow toward Marine Lines.
+                </p>
+              </div>
+
+              {/* Three Key Telemetry Metrics */}
+              <div className={styles.telemetryRow}>
+                <div className={styles.telemetryCard}>
+                  <span className={styles.telemetryLabel}>INFLOW VELOCITY</span>
+                  <div className={styles.telemetryValue}>
+                    +{heroZone?.inflowRate ?? 42} <span className={styles.unit}>pax/min</span>
+                  </div>
+                  <span className={styles.telemetrySub}>Egress flowing toward Western Railway</span>
+                </div>
+
+                <div className={styles.telemetryCard}>
+                  <span className={styles.telemetryLabel}>PLATFORM CAPACITY</span>
+                  <div className={styles.telemetryValue}>
+                    {churchgateRes?.availableCapacity?.toLocaleString() ?? "1,200"} <span className={styles.unit}>remaining</span>
+                  </div>
+                  <span className={styles.telemetrySub}>Churchgate clearance buffer</span>
+                </div>
+
+                <div className={styles.telemetryCard}>
+                  <span className={styles.telemetryLabel}>CLEARANCE STATUS</span>
+                  <div className={styles.telemetryValue} style={{ color: "var(--red)" }}>
+                    High Bottleneck
+                  </div>
+                  <span className={styles.telemetrySub}>Downstream trains at full capacity</span>
+                </div>
+              </div>
+
+              {/* Wankhede Gate Split Telemetry */}
+              {showGateContext && (
+                <div className={styles.gateContextSection}>
+                  <span className={styles.gateContextLabel}>GATE CORRIDOR TELEMETRY</span>
+                  <div className={styles.gateContextGrid}>
+                    {gate1Zone && (
+                      <div className={styles.gateCard}>
+                        <div className={styles.gateCardTop}>
+                          <span className={styles.gateName}>Exit Gate 1</span>
+                          <span className={`pill ${gate1Zone.pressure >= 85 ? "pill-critical" : gate1Zone.pressure >= 70 ? "pill-high" : "pill-watch"}`} style={{ fontSize: 9 }}>
+                            {getPressureLabel(gate1Zone.pressure)}
+                          </span>
+                        </div>
+                        <span className={styles.gatePressure} style={{ color: getPressureColor(gate1Zone.pressure) }}>
+                          {gate1Zone.pressure}%
+                        </span>
+                      </div>
+                    )}
+                    {gate2Zone && (
+                      <div className={styles.gateCard}>
+                        <div className={styles.gateCardTop}>
+                          <span className={styles.gateName}>Exit Gate 2</span>
+                          <span className={`pill ${gate2Zone.pressure >= 85 ? "pill-critical" : gate2Zone.pressure >= 70 ? "pill-high" : "pill-watch"}`} style={{ fontSize: 9 }}>
+                            {getPressureLabel(gate2Zone.pressure)}
+                          </span>
+                        </div>
+                        <span className={styles.gatePressure} style={{ color: getPressureColor(gate2Zone.pressure) }}>
+                          {gate2Zone.pressure}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className={styles.driverItem}>
-              <span className={styles.driverLabel}>PLATFORM CAPACITY</span>
-              <span className={styles.driverVal}>
-                {churchgateRes?.availableCapacity?.toLocaleString() ?? "1,200"} remaining
-              </span>
-              <span className={styles.driverDesc}>Churchgate clearance buffer</span>
-            </div>
+            {/* Right Column: Dominant Pressure Gauge & Forward Trend */}
+            <div className={styles.heroGaugeCol}>
+              <div className={styles.gaugeBox}>
+                <div className={styles.gaugeHeader}>
+                  <span className={styles.gaugeTitle}>CURRENT ZONE PRESSURE</span>
+                  <span className={`pill ${(heroZone?.pressure ?? 0) >= 85 ? "pill-critical" : "pill-high"}`} style={{ fontSize: 10, padding: "2px 8px" }}>
+                    {(heroZone?.pressure ?? 0) >= 85 ? "CRITICAL" : "HIGH LOAD"}
+                  </span>
+                </div>
 
-            <div className={styles.driverItem}>
-              <span className={styles.driverLabel}>CLEARANCE STATUS</span>
-              <span className={styles.driverVal} style={{ color: "var(--red)" }}>High Bottleneck</span>
-              <span className={styles.driverDesc}>Downstream trains at full capacity</span>
+                <div className={styles.gaugeNumber} style={{ color: heroColor }}>
+                  {heroZone?.pressure ?? "—"}%
+                </div>
+
+                <div className={styles.forecastBox}>
+                  <span className={styles.forecastLabel}>Forecast +15 min</span>
+                  <span className={styles.forecastValue} style={{ color: heroColor }}>
+                    {heroZone?.predictedPressure15 ?? "—"}%
+                  </span>
+                </div>
+
+                <Link href="/organizer/predictions" className={styles.forecastLink}>
+                  VIEW FULL FORECAST →
+                </Link>
+              </div>
             </div>
           </div>
 
-          {/* Wankhede gate split — compact, only when relevant */}
-          {showGateContext && (
-            <div className={styles.gateContextBar}>
-              <span className={styles.gateContextLabel}>WANKHEDE STADIUM — EXIT GATES</span>
-              <div className={styles.gateContextRows}>
-                {gate1Zone && (
-                  <div className={styles.gateContextRow}>
-                    <span className={styles.gateContextName}>Exit Gate 1</span>
-                    <span className={styles.gateContextPressure} style={{ color: getPressureColor(gate1Zone.pressure) }}>
-                      {gate1Zone.pressure}%
-                    </span>
-                    <span className={`pill ${gate1Zone.pressure >= 85 ? "pill-critical" : gate1Zone.pressure >= 70 ? "pill-high" : "pill-watch"}`} style={{ fontSize: 9 }}>
-                      {getPressureLabel(gate1Zone.pressure)}
-                    </span>
-                  </div>
-                )}
-                {gate2Zone && (
-                  <div className={styles.gateContextRow}>
-                    <span className={styles.gateContextName}>Exit Gate 2</span>
-                    <span className={styles.gateContextPressure} style={{ color: getPressureColor(gate2Zone.pressure) }}>
-                      {gate2Zone.pressure}%
-                    </span>
-                    <span className={`pill ${gate2Zone.pressure >= 85 ? "pill-critical" : gate2Zone.pressure >= 70 ? "pill-high" : "pill-watch"}`} style={{ fontSize: 9 }}>
-                      {getPressureLabel(gate2Zone.pressure)}
-                    </span>
-                  </div>
-                )}
+          {/* Closed Loop / Diversion Banner (if active) */}
+          {redistributionApplied && redistributionImpact && (
+            <div className={styles.closedLoopBanner}>
+              <div className={styles.closedLoopTitle}>
+                <Zap size={16} color="var(--green)" />
+                <span>PROACTIVE DIVERSION ACTIVE — REDISTRIBUTION APPLIED</span>
+              </div>
+              <div className={styles.closedLoopStats}>
+                <div>Churchgate: <strong>{redistributionImpact.churchgateBefore}% → {redistributionImpact.churchgateAfter}%</strong></div>
+                <div>Dadar: <strong>{redistributionImpact.dadarBefore}% → {redistributionImpact.dadarAfter}%</strong></div>
+                <div>Diverted: <strong>~{redistributionImpact.visitorsRedistributed.toLocaleString()} pax</strong></div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Ready Recommendation Strip */}
+          {topRec && (
+            <div className={styles.heroActionStrip}>
+              <div className={styles.actionLeft}>
+                <span className={styles.actionBadge}>ACTION READY</span>
+                <div className={styles.actionContent}>
+                  <span className={styles.actionHeadline}>{topRec.title}</span>
+                  <span className={styles.actionImpact}>
+                    Expected Impact: {topRec.expectedImpact[0]?.before}% → {topRec.expectedImpact[0]?.after}% operational relief
+                  </span>
+                </div>
+              </div>
+              <div className={styles.actionRight}>
+                <button
+                  type="button"
+                  className="btn btn-yellow"
+                  style={{ fontWeight: 800, padding: "10px 22px", fontSize: 12, letterSpacing: "0.02em" }}
+                  onClick={() => setShowActionDrawer(true)}
+                >
+                  {isTopRecApproved ? "✓ APPROVED" : "REVIEW ACTION →"}
+                </button>
+                <Link
+                  href="/organizer/simulation"
+                  className={styles.actionSimLink}
+                >
+                  Test in Simulator →
+                </Link>
               </div>
             </div>
           )}
         </div>
 
-        {/* Right: big pressure number + small forward indicator */}
-        <div className={styles.situationMetricsSide}>
-          <div className={styles.pressureGaugeRow}>
-            <div>
-              <span className={styles.driverLabel}>CURRENT ZONE PRESSURE</span>
-              <div className={styles.pressureValBig} style={{ color: heroColor }}>
-                {heroZone?.pressure ?? "—"}%
-              </div>
-            </div>
-            <div className={styles.pressureStatusMeta}>
-              <span className={`pill ${(heroZone?.pressure ?? 0) >= 85 ? "pill-critical" : "pill-high"}`} style={{ fontSize: 10 }}>
-                {(heroZone?.pressure ?? 0) >= 85 ? "CRITICAL" : "HIGH LOAD"}
-              </span>
-            </div>
-          </div>
-
-          <div className={styles.forecastPeakLine}>
-            <span>Forecast +15 min</span>
-            <span style={{ color: heroColor, fontWeight: 800 }}>
-              {heroZone?.predictedPressure15 ?? "—"}%
-            </span>
-          </div>
-
-          <Link href="/organizer/predictions" className={styles.predictionsLink}>
-            VIEW FULL FORECAST →
-          </Link>
+        {/* Vertical Scroll Invitation */}
+        <div className={styles.scrollInvitation}>
+          <span>Scroll down for Spatial Command Map &amp; CCTV Feeds</span>
+          <ChevronDown size={14} className={styles.scrollIcon} />
         </div>
-      </div>
+      </section>
 
-      {/* Redistribution applied banner */}
-      {redistributionApplied && redistributionImpact && (
-        <div className={styles.closedLoopBanner}>
-          <div className={styles.closedLoopTitle}>
-            <Zap size={16} color="var(--green)" />
-            <span>PROACTIVE DIVERSION ACTIVE — REDISTRIBUTION APPLIED</span>
-          </div>
-          <div className={styles.closedLoopStats}>
-            <div>Churchgate: <strong>{redistributionImpact.churchgateBefore}% → {redistributionImpact.churchgateAfter}%</strong></div>
-            <div>Dadar: <strong>{redistributionImpact.dadarBefore}% → {redistributionImpact.dadarAfter}%</strong></div>
-            <div>Diverted: <strong>~{redistributionImpact.visitorsRedistributed.toLocaleString()} people</strong></div>
-          </div>
-        </div>
-      )}
-
-      {/* ── 3. ACTION READY — COMPACT STRIP ─────────────────────────────────── */}
-      {topRec && (
-        <div className={styles.actionStrip}>
-          <div className={styles.actionStripLeft}>
-            <span className={styles.actionStepBadge}>ACTION READY</span>
-            <div className={styles.actionTextGroup}>
-              <span className={styles.actionTitle}>{topRec.title}</span>
-              <span className={styles.actionSubtitle}>
-                Expected: {topRec.expectedImpact[0]?.before}% → {topRec.expectedImpact[0]?.after}%
-              </span>
-            </div>
-          </div>
-          <div className={styles.actionStripRight}>
-            <button
-              type="button"
-              className="btn btn-yellow"
-              style={{ fontWeight: 800, padding: "8px 20px", fontSize: 12 }}
-              onClick={() => setShowActionDrawer(true)}
-            >
-              {isTopRecApproved ? "✓ APPROVED" : "REVIEW ACTION →"}
-            </button>
-            <Link
-              href="/organizer/simulation"
-              className={styles.actionSecondaryLink}
-            >
-              Test in Simulator →
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* ── 4. SPATIAL COMMAND MAP ───────────────────────────────────────────── */}
-      <div className={styles.spatialSection}>
+      {/* ── 2. SPATIAL COMMAND MAP (Visible After Scroll) ── */}
+      <section className={styles.spatialSection} aria-label="Spatial Monitor">
         <div className={styles.spatialHud}>
           <div className={styles.hudLeft}>
             <span className={styles.hudTitle}>SPATIAL MONITOR — WHERE THIS IS HAPPENING</span>
@@ -345,12 +329,12 @@ export default function OrganizerDashboard() {
             selectedId={selectedResource?.id ?? null}
           />
         </div>
-      </div>
+      </section>
 
-      {/* ── 5. LIVE SIGNAL HEALTH ────────────────────────────────────────────── */}
-      <div className={styles.signalStrip}>
-        <div className={styles.signalStripHeader}>
-          <span className={styles.signalStripTitle}>LIVE SIGNALS</span>
+      {/* ── 3. LIVE SIGNAL HEALTH (Further Down) ── */}
+      <section className={styles.signalSection} aria-label="Live Signal Health">
+        <div className={styles.signalHeader}>
+          <span className={styles.signalTitle}>LIVE SIGNALS</span>
           <Link href="/organizer/cctv-demo" className={styles.signalViewAllLink}>
             <Video size={12} />
             VIEW ALL SIGNALS →
@@ -391,10 +375,10 @@ export default function OrganizerDashboard() {
             </span>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── 6. VISUAL VERIFICATION — 4 RELEVANT FEEDS ───────────────────────── */}
-      <div className={styles.verificationSection}>
+      {/* ── 4. VISUAL VERIFICATION (Further Down) ── */}
+      <section className={styles.verificationSection} aria-label="Visual Verification CCTV">
         <div className={styles.verificationHeader}>
           <span className={styles.verificationTitle}>VISUAL VERIFICATION</span>
           <Link href="/organizer/cctv-demo" className={styles.verificationOpenLink}>
@@ -429,9 +413,9 @@ export default function OrganizerDashboard() {
             );
           })}
         </div>
-      </div>
+      </section>
 
-      {/* ── OVERLAYS & DRAWERS ───────────────────────────────────────────────── */}
+      {/* ── OVERLAYS & DRAWERS ── */}
       {selectedResource && (
         <div className={styles.resourceModalOverlay} onClick={() => setSelectedResource(null)}>
           <div className={styles.resourceModalBox} onClick={e => e.stopPropagation()}>

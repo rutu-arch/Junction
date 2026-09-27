@@ -132,6 +132,13 @@ export class PersistenceService {
   }
 
   /**
+   * Clears in-memory interventions (useful for scenario resets).
+   */
+  public clearInterventions(): void {
+    this.inMemoryInterventions.clear();
+  }
+
+  /**
    * Returns storage diagnostics for operational transparency.
    */
   public getStorageDiagnostics(): {

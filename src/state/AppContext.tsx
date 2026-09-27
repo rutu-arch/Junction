@@ -278,14 +278,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return getHotels(activeScenario, hotelOverrides);
   }, [activeScenario, hotelOverrides]);
 
-  // REC1 or first REDISTRIBUTE recommendation affects attendees
-  const rec1Approved = recommendations.find(r => r.id === "REC1" || r.type === "REDISTRIBUTE")?.status === "APPROVED" || recommendations.find(r => r.id === "REC1" || r.type === "REDISTRIBUTE")?.status === "ACTIVE";
-  const hasAttendeeRecommendation = rec1Approved;
-  const attendeeRecommendationMessage = rec1Approved
-    ? "Churchgate pressure is rising. Dadar Station offers a better journey with only 8 minutes extra travel time."
+  // Active approved recommendation dynamically determines attendee message
+  const activeApprovedRec = useMemo(() => {
+    return recommendations.filter(r => r.status === "ACTIVE" || r.status === "APPROVED").pop() || null;
+  }, [recommendations]);
+
+  const hasAttendeeRecommendation = Boolean(activeApprovedRec);
+  const attendeeRecommendationMessage = activeApprovedRec
+    ? (activeApprovedRec.attendeeMessage || activeApprovedRec.action || activeApprovedRec.title)
     : "";
 
-  // If attendee selected BALANCED route and rec1 is approved, redistribution is applied
+  const rec1Approved = (activeApprovedRec?.id === "REC1" || activeApprovedRec?.type === "REDISTRIBUTE" || activeApprovedRec?.actionType === "REROUTE_ATTENDEES") ?? false;
+
+  // If attendee selected BALANCED route and redistribution rec is active, redistribution is applied
   const redistributionApplied = rec1Approved && attendeeSelectedRouteId === "BALANCED";
 
   const redistributionImpact: RedistributionImpact | null = useMemo(() => {
@@ -301,6 +306,58 @@ export function AppProvider({ children }: { children: ReactNode }) {
       travelDeltaMin: 8,
     };
   }, [redistributionApplied]);
+
+  // Periodic background polling (3s) to keep attendee web views synced with backend approvals in real-time
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const pollSync = async () => {
+      try {
+        const res = await fetch("/api/attendee/state");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success) {
+          if (data.scenario?.id && data.scenario.id !== activeScenario) {
+            setActiveScenario(data.scenario.id);
+          }
+          if (Array.isArray(data.approvedRecommendations) && data.approvedRecommendations.length > 0) {
+            const latestBackendRec = data.approvedRecommendations[data.approvedRecommendations.length - 1];
+            setRecommendations(prev => {
+              const matched = prev.find(r => r.id === latestBackendRec.id);
+              if (matched && (matched.status === "ACTIVE" || matched.status === "APPROVED")) {
+                return prev;
+              }
+              if (matched) {
+                return prev.map(r => r.id === latestBackendRec.id ? { ...r, status: "ACTIVE" as const } : r);
+              }
+              return [
+                ...prev,
+                {
+                  id: latestBackendRec.id,
+                  type: latestBackendRec.type || "TRANSPORT",
+                  title: latestBackendRec.title,
+                  problem: "Operational pressure condition",
+                  action: latestBackendRec.action || latestBackendRec.message,
+                  reason: "Optimizing destination flow",
+                  expectedImpact: [{ resourceName: "Corridor", before: 85, after: 65 }],
+                  tradeOff: "Standard route timing adjustment",
+                  confidence: "HIGH",
+                  source: "SIMULATED",
+                  status: "ACTIVE",
+                  affectsAttendee: true,
+                  attendeeMessage: latestBackendRec.message,
+                  priority: 1,
+                },
+              ];
+            });
+          }
+        }
+      } catch (_) {}
+    };
+
+    const interval = setInterval(pollSync, 3000);
+    return () => clearInterval(interval);
+  }, [activeScenario]);
 
   // Controlled Simulation Ticker Loop
   // Fires at a controlled cadence (800ms) when status is PLAYING.
@@ -521,6 +578,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
       "USER_ORGANIZER_01",
       "ORGANIZER"
     );
+
+    // Synchronize approval with backend API so Flutter attendee app updates in real-time
+    if (typeof window !== "undefined") {
+      fetch(`/api/recommendations/${encodeURIComponent(id)}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          actorId: "USER_ORGANIZER_01",
+          recommendation: {
+            id: rec.id,
+            title: rec.title,
+            action: rec.action,
+            attendeeMessage: rec.attendeeMessage || rec.action,
+            type: rec.type,
+            routeId: rec.type === "REDISTRIBUTE" ? "BALANCED" : "FASTEST",
+          },
+        }),
+      }).catch(() => {});
+
+      if (id === "REC1" || rec.type === "REDISTRIBUTE" || rec.actionType === "REROUTE_ATTENDEES") {
+        fetch("/api/scenarios", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isRec1Approved: true }),
+        }).catch(() => {});
+      }
+    }
   }, [recommendations, zones, simulationState.minutesElapsed]);
 
   const rejectRecommendation = useCallback((id: string) => {
@@ -535,6 +619,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       "USER_ORGANIZER_01",
       "ORGANIZER"
     );
+
+    if (typeof window !== "undefined" && id === "REC1") {
+      fetch("/api/scenarios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isRec1Approved: false }),
+      }).catch(() => {});
+    }
   }, []);
 
   const isRecommendationApproved = useCallback((id: string) => {

@@ -294,8 +294,6 @@ export default function OrganizerLayout({ children }: { children: React.ReactNod
           </div>
         </header>
 
-        <FlowIndicator />
-
         <div className={styles.content}>
           {children}
         </div>
